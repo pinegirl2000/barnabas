@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──────────────────────────────────────────
+
+enum FamilyType {
+  NEW
+  RE_REGISTER
+}
+
+enum ServiceTime {
+  FIRST
+  SECOND
+  THIRD
+  BOTH
+}
+
+enum FamilyStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+}
+
+enum SessionType {
+  EDUCATION
+  PHONE_VISIT
+  PASTOR_VISIT
+}
+
+enum PastorRole {
+  SENIOR
+  ASSOCIATE
+}
+
+enum UserRole {
+  ADMIN
+  FAMILY_TEAM
+  VOLUNTEER
+  ZONE_LEADER
+  USER
+}
+
+enum VolunteerStatus {
+  NONE
+  PENDING
+  APPROVED
+}
+
+// ── Models ─────────────────────────────────────────
+
+model User {
+  id              String          @id @default(cuid())
+  kakaoId         String          @unique
+  email           String?
+  name            String
+  role            UserRole        @default(VOLUNTEER)
+  isFirstLogin    Boolean         @default(true)
+  volunteerStatus VolunteerStatus @default(NONE)
+  volunteerId     String?
+  volunteer       Volunteer?      @relation(fields: [volunteerId], references: [id])
+  zones           Zone[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model Family {
+  id            String       @id @default(cuid())
+  registeredAt  DateTime     @default(now())
+  type          FamilyType
+  serviceTime   ServiceTime
+  status        FamilyStatus @default(ACTIVE)
+  photoUrl      String?
+  districtId    String?
+  regionId      String?
+  zoneId        String?
+  arrivalDate   DateTime?
+  address       String?
+  lastContactAt DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  members     Member[]
+  sessions    SessionRecord[]
+  assignments Assignment[]
+  district    District?       @relation(fields: [districtId], references: [id])
+  region      Region?         @relation(fields: [regionId], references: [id])
+  zone        Zone?           @relation(fields: [zoneId], references: [id])
+}
+
+model Member {
+  id                String  @id @default(cuid())
+  familyId          String
+  name              String
+  relation          String? // 본인, 배우자, 자녀 등
+  gender            String? // 남, 여
+  birthDate         String?  // YYYY-MM-DD
+  phone             String?
+  position          String? // 서리집사, 안수집사, 권사, 장로
+  isSingle          Boolean @default(false)
+  attending         Boolean @default(false)
+  baptized          Boolean @default(false)
+  baptismYear       Int?
+  previousChurch    String?
+  servingDepartment String?
+  memo              String?
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+}
+
+model Volunteer {
+  id           String      @id @default(cuid())
+  name         String
+  isInternal   Boolean     @default(true)
+  availability ServiceTime
+  phone        String?
+  email        String?
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  sessions    SessionRecord[]
+  assignments Assignment[]
+  users       User[]
+}
+
+model Pastor {
+  id   String     @id @default(cuid())
+  name String
+  role PastorRole
+
+  sessions    SessionRecord[]
+  assignments Assignment[]
+}
+
+model District {
+  id   String @id @default(cuid())
+  name String
+
+  regions  Region[]
+  families Family[]
+}
+
+model Region {
+  id         String @id @default(cuid())
+  districtId String
+  name       String
+
+  district District @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  zones    Zone[]
+  families Family[]
+}
+
+model Zone {
+  id          String  @id @default(cuid())
+  regionId    String
+  name        String  @default("")
+  leaderName  String  @default("")
+  leaderName2 String  @default("")
+  leaderId    String?
+
+  region   Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  leader   User?  @relation(fields: [leaderId], references: [id])
+  families Family[]
+}
+
+model SessionRecord {
+  id                String      @id @default(cuid())
+  familyId          String
+  sessionNumber     Int         // 1~8
+  type              SessionType
+  volunteerId       String?
+  pastorId          String?
+  date              DateTime?
+  feedback          String?
+  photoUrl          String?
+  needsNewVolunteer Boolean     @default(false)
+  completed         Boolean     @default(false)
+  pastorVisit       Boolean     @default(false)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  family    Family     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  volunteer Volunteer? @relation(fields: [volunteerId], references: [id])
+  pastor    Pastor?    @relation(fields: [pastorId], references: [id])
+
+  @@unique([familyId, sessionNumber])
+}
+
+model TableConfig {
+  id          String @id @default(cuid())
+  tableNumber Int    @unique // 1~6
+  capacity    Int    // 1,2번:5명, 3~6번:7명
+
+  assignments Assignment[]
+}
+
+model Assignment {
+  id          String   @id @default(cuid())
+  tableId     String
+  familyId    String
+  volunteerId String?
+  pastorId    String?
+  weekStart   DateTime
+  createdAt   DateTime @default(now())
+
+  table     TableConfig @relation(fields: [tableId], references: [id])
+  family    Family      @relation(fields: [familyId], references: [id])
+  volunteer Volunteer?  @relation(fields: [volunteerId], references: [id])
+  pastor    Pastor?     @relation(fields: [pastorId], references: [id])
+
+  @@unique([tableId, familyId, weekStart])
+}
+
+model ChatMessage {
+  id       String   @id @default(cuid())
+  familyId String?
+  content  String
+  sender   String?
+  sentAt   DateTime
+  parsedAt DateTime @default(now())
+}

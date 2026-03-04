@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Zone" ADD COLUMN     "leaderName" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "name" TEXT NOT NULL DEFAULT '';
