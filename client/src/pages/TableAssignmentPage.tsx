@@ -250,7 +250,7 @@ function DraggableCard({ assignment, inverted }: { assignment: any; inverted?: b
           </span>
         )}
         {isPastorVisit && (
-          <Crown className="w-4 h-4 text-purple-500 flex-shrink-0" title={pastorLabel!} />
+          <Crown className="w-4 h-4 text-purple-500 flex-shrink-0" />
         )}
       </div>
       {pastorLabel && (

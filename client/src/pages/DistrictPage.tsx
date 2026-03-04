@@ -203,8 +203,8 @@ export default function DistrictPage() {
                           <div className="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg">
                             <input
                               placeholder="지역이름"
-                              value={regionForm.name}
-                              onChange={e => setRegionForm({ ...regionForm, name: e.target.value })}
+                              value={regionForm!.name}
+                              onChange={e => setRegionForm({ ...regionForm!, name: e.target.value })}
                               className="border border-gray-200 rounded px-2 py-1.5 text-sm w-32"
                               autoFocus
                             />
@@ -252,21 +252,21 @@ export default function DistrictPage() {
                                   <div className="flex items-center gap-2 p-2 bg-green-50 rounded-lg">
                                     <input
                                       placeholder="구역이름"
-                                      value={zoneForm.name}
-                                      onChange={e => setZoneForm({ ...zoneForm, name: e.target.value })}
+                                      value={zoneForm!.name}
+                                      onChange={e => setZoneForm({ ...zoneForm!, name: e.target.value })}
                                       className="border border-gray-200 rounded px-2 py-1.5 text-sm w-24"
                                       autoFocus
                                     />
                                     <input
                                       placeholder="구역장1"
-                                      value={zoneForm.leaderName}
-                                      onChange={e => setZoneForm({ ...zoneForm, leaderName: e.target.value })}
+                                      value={zoneForm!.leaderName}
+                                      onChange={e => setZoneForm({ ...zoneForm!, leaderName: e.target.value })}
                                       className="border border-gray-200 rounded px-2 py-1.5 text-sm w-20"
                                     />
                                     <input
                                       placeholder="구역장2"
-                                      value={zoneForm.leaderName2}
-                                      onChange={e => setZoneForm({ ...zoneForm, leaderName2: e.target.value })}
+                                      value={zoneForm!.leaderName2}
+                                      onChange={e => setZoneForm({ ...zoneForm!, leaderName2: e.target.value })}
                                       className="border border-gray-200 rounded px-2 py-1.5 text-sm w-20"
                                     />
                                     <button onClick={handleZoneSubmit} className="p-1.5 text-green-600 hover:bg-green-50 rounded">

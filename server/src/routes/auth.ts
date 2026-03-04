@@ -81,7 +81,7 @@ authRouter.get('/users', authenticate, requireRole('ADMIN'), async (_req: Reques
 // 사용자 역할 변경 (ADMIN only)
 authRouter.put('/users/:id/role', authenticate, requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { role } = req.body;
 
     const validRoles = ['ADMIN', 'FAMILY_TEAM', 'VOLUNTEER', 'ZONE_LEADER', 'USER'];
