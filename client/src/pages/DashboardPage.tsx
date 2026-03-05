@@ -96,13 +96,7 @@ export default function DashboardPage() {
           <div className="mb-3 sm:mb-4">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-sm sm:text-base">
               <Calendar className="w-5 h-5 text-pink-500" />
-              {(() => {
-                if (data?.thisSundayStr) {
-                  const [, m, d] = data.thisSundayStr.split('-');
-                  return `${parseInt(m)}월${parseInt(d)}일 바나바 교육일정`;
-                }
-                return '바나바 교육일정';
-              })()}
+              바나바 교육일정
             </h3>
             {!isUserOnly && (
               <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:float-right sm:-mt-7">
