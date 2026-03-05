@@ -61,6 +61,7 @@ export default function FamilyDetailPage() {
   const [saving, setSaving] = useState(false);
   const [editingDateSession, setEditingDateSession] = useState<string | null>(null);
   const [collapsedSessions, setCollapsedSessions] = useState<Set<string>>(new Set());
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [pendingEdits, setPendingEdits] = useState<Record<string, {
     date?: string; volunteerId?: string; needsNewVolunteer?: boolean;
     serviceTime?: string; memberAttending?: Record<string, boolean>; pastorVisit?: boolean;
@@ -339,58 +340,66 @@ export default function FamilyDetailPage() {
 
           {infoTab === 'info' ? (
             <div className="p-4">
-              {/* 사진 + 등록번호 */}
-              {(family.photoUrl || family.registrationNumber) && (
-                <div className="flex items-center gap-3 mb-3">
-                  {family.photoUrl && (
-                    <img src={family.photoUrl} alt="가족사진" className="w-14 h-14 rounded-lg object-cover border border-gray-200" />
+              <div className="flex gap-4">
+                {/* 왼쪽: 사진 */}
+                <div className="shrink-0">
+                  {family.photoUrl ? (
+                    <img
+                      src={family.photoUrl}
+                      alt="가족사진"
+                      className="w-20 h-20 rounded-lg object-cover border border-gray-200 cursor-pointer"
+                      onClick={() => setLightboxUrl(family.photoUrl)}
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 text-xs">사진없음</div>
                   )}
                   {family.registrationNumber && (
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">등록번호: {family.registrationNumber}</span>
+                    <span className="block text-center text-[10px] text-gray-500 bg-gray-100 rounded mt-1 py-0.5">{family.registrationNumber}</span>
                   )}
                 </div>
-              )}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${family.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
-                    {getFamilyTypeLabel(family.type)}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(family.status)}`}>
-                    {getStatusLabel(family.status)}
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
-                    {getServiceTimeLabel(family.serviceTime)}
-                  </span>
-                </div>
-                <span className="text-xs text-gray-400 ml-auto">
-                  참석인원 {family.members?.filter((m: any) => m.attending).length || 0}명
-                </span>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-1.5 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400 min-w-[52px]">바나바</span>
-                  <span className="font-medium text-pink-600">
-                    {(() => {
-                      const v = family.sessions?.find((s: any) => !s.completed && s.volunteerId)?.volunteer;
-                      return volunteerDisplayName(v) || '미배정';
-                    })()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400 min-w-[52px]">교구</span>
-                  <span className="font-medium">
-                    {family.district?.name
-                      ? `${family.district.name}${family.zone ? `-${family.zone.name}` : ''}`
-                      : '미배정'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400 min-w-[52px]">입국일</span>
-                  <span className="font-medium">{family.arrivalDate ? formatDate(family.arrivalDate) : '-'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400 min-w-[52px]">주소</span>
-                  <span className="font-medium">{family.address || '-'}</span>
+                {/* 오른쪽: 정보 */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${family.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
+                      {getFamilyTypeLabel(family.type)}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(family.status)}`}>
+                      {getStatusLabel(family.status)}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                      {getServiceTimeLabel(family.serviceTime)}
+                    </span>
+                    <span className="text-xs text-gray-400 ml-auto">
+                      참석인원 {family.members?.filter((m: any) => m.attending).length || 0}명
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 min-w-[40px]">바나바</span>
+                      <span className="font-medium text-pink-600 truncate">
+                        {(() => {
+                          const v = family.sessions?.find((s: any) => !s.completed && s.volunteerId)?.volunteer;
+                          return volunteerDisplayName(v) || '미배정';
+                        })()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 min-w-[40px]">교구</span>
+                      <span className="font-medium truncate">
+                        {family.district?.name
+                          ? `${family.district.name}${family.zone ? `-${family.zone.name}` : ''}`
+                          : '미배정'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 min-w-[40px]">입국일</span>
+                      <span className="font-medium">{family.arrivalDate ? formatDate(family.arrivalDate) : '-'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 min-w-[40px]">주소</span>
+                      <span className="font-medium truncate">{family.address || '-'}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -773,6 +782,21 @@ export default function FamilyDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 사진 라이트박스 */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <img
+            src={lightboxUrl}
+            alt="가족사진"
+            className="max-w-[90vw] max-h-[80vh] rounded-xl shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
