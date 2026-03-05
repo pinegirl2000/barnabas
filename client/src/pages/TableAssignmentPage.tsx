@@ -155,14 +155,14 @@ export default function TableAssignmentPage() {
             <div className="md:hidden space-y-4">
               {/* 새가족실 안쪽 & 바깥쪽 */}
               <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
+                <div className="space-y-2 min-w-0">
                   <h3 className="text-sm font-semibold text-blue-700 text-center bg-blue-50 py-1.5 rounded-lg">새가족실 안쪽</h3>
                   {[1,2,3].map(num => {
                     const table = data?.tables?.find((t: any) => t.tableNumber === num);
                     return table ? <TableSlot key={table.id} table={table} zone="blue" serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
                   })}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 min-w-0">
                   <h3 className="text-sm font-semibold text-emerald-700 text-center bg-emerald-50 py-1.5 rounded-lg">새가족실 바깥쪽</h3>
                   {[4,5,6].map(num => {
                     const table = data?.tables?.find((t: any) => t.tableNumber === num);
@@ -226,9 +226,9 @@ function TableSlot({ table, zone, serviceFilter }: { table: any; zone: 'blue' | 
         `${styles.border} ${styles.bg}`
       }`}
     >
-      <div className="flex items-center justify-between mb-2">
-        <h4 className={`font-semibold ${hasAssignments && !isOver ? styles.activeHeader : styles.header}`}>테이블 {table.tableNumber}</h4>
-        <span className="text-xs text-gray-500">새가족 참석 : {attendeeCount}명</span>
+      <div className="flex items-center justify-between mb-2 gap-1">
+        <h4 className={`font-semibold text-sm shrink-0 ${hasAssignments && !isOver ? styles.activeHeader : styles.header}`}>테이블 {table.tableNumber}</h4>
+        <span className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">참석: {attendeeCount}명</span>
       </div>
 
       <div className="space-y-2">
@@ -277,22 +277,22 @@ function DraggableCard({ assignment, inverted }: { assignment: any; inverted?: b
         isDragging ? 'opacity-50 shadow-lg' : ''
       } bg-white border-gray-200 shadow-sm`}
     >
-      <div className="flex items-center justify-center gap-1.5">
+      <div className="flex items-center justify-center gap-1 flex-wrap">
         <span
-          className="text-sm font-medium text-gray-900 hover:text-primary-600 hover:underline"
+          className="text-xs sm:text-sm font-medium text-gray-900 hover:text-primary-600 hover:underline break-all"
           onPointerDown={e => e.stopPropagation()}
           onClick={e => { e.stopPropagation(); window.location.href = `/families/${assignment.family.id}`; }}
         >{memberNames}</span>
         {nextSession && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600">
+          <span className="px-1 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 shrink-0">
             {nextSession.sessionNumber}주차
           </span>
         )}
         {isPastorVisit && (
-          <Crown className="w-4 h-4 text-purple-500 flex-shrink-0" />
+          <Crown className="w-4 h-4 text-purple-500 shrink-0" />
         )}
         {isGiftSession && (
-          <Gift className="w-4 h-4 text-pink-500 flex-shrink-0" />
+          <Gift className="w-4 h-4 text-pink-500 shrink-0" />
         )}
       </div>
       {pastorLabel && (
