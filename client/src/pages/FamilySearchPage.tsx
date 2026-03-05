@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { formatDate, getFamilyTypeLabel, getServiceTimeLabel, getStatusLabel, getStatusColor } from '../lib/utils';
 import { exportFamiliesToExcel } from '../lib/excelExport';
 import { groupMembersIntoFamilies, type ParsedMember } from '../lib/excelPaste';
+import { familyDisplayNames } from '../lib/familyDisplayNames';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
 
 export default function FamilySearchPage() {
@@ -235,7 +236,7 @@ function FamilyTable({ families, getVolunteerName, getFirstSessionDate, onRowCli
             </td>
             <td className="py-2 px-3 text-gray-600 text-xs">{getServiceTimeLabel(f.serviceTime)}</td>
             <td className="py-2 px-3 font-medium text-gray-900">
-              {f.members?.map((m: any) => m.name).join(', ')}
+              {familyDisplayNames(f.members || [])}
             </td>
             <td className="py-2 px-3 text-gray-500 text-xs">{f.members?.[0]?.phone || ''}</td>
             <td className="py-2 px-3 text-gray-500 text-xs truncate max-w-[200px]">{f.address || ''}</td>

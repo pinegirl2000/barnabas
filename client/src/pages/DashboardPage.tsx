@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { formatDate, getStatusColor, getStatusLabel } from '../lib/utils';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
+import { familyDisplayNames } from '../lib/familyDisplayNames';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -175,7 +176,7 @@ export default function DashboardPage() {
                           </div>
                           {group.items.map((s: any, gIdx: number) => {
                             const isMySchedule = user?.volunteerId && s.volunteerId === user.volunteerId;
-                            const attendingNames = s.family.members?.filter((m: any) => m.attending).map((m: any) => m.name).slice(0, 2).join(', ') || '';
+                            const attendingNames = familyDisplayNames(s.family.members || []);
                             const attendingCount = s.family.members?.filter((m: any) => m.attending).length || 0;
                             return (
                               <div key={s.sessionId} className={`p-3 border-b border-slate-100 ${isMySchedule ? 'bg-yellow-50 ring-1 ring-inset ring-yellow-300 rounded-lg mb-1' : ''}`}>
@@ -271,7 +272,7 @@ export default function DashboardPage() {
                           </tr>,
                           ...group.items.map((s: any, gIdx: number) => {
                             const isMySchedule = user?.volunteerId && s.volunteerId === user.volunteerId;
-                            const attendingNames = s.family.members?.filter((m: any) => m.attending).map((m: any) => m.name).slice(0, 2).join(', ') || '';
+                            const attendingNames = familyDisplayNames(s.family.members || []);
                             const attendingCount = s.family.members?.filter((m: any) => m.attending).length || 0;
                             return (
                             <tr key={s.sessionId} className={`border-b border-slate-100 ${isMySchedule ? 'bg-yellow-50 ring-1 ring-inset ring-yellow-300' : 'hover:bg-slate-50/50'}`}>
@@ -402,7 +403,7 @@ export default function DashboardPage() {
                       <li key={f.id}>
                         <Link to={`/families/${f.id}`} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
                           <span className="text-sm font-medium">
-                            {f.members.filter((m: any) => m.attending).map((m: any) => m.name).slice(0, 2).join(', ')}
+                            {familyDisplayNames(f.members || [])}
                           </span>
                           <span className="text-xs text-gray-500">{f.projectedDate ? formatDate(f.projectedDate) : ''}</span>
                         </Link>
@@ -437,7 +438,7 @@ export default function DashboardPage() {
                         <tr key={f.id} className="border-b border-gray-50 hover:bg-gray-50">
                           <td className="py-2 px-3">
                             <Link to={`/families/${f.id}`} className="text-primary-600 hover:underline font-medium">
-                              {f.members.filter((m: any) => m.attending).map((m: any) => m.name).slice(0, 2).join(', ')}
+                              {familyDisplayNames(f.members || [])}
                             </Link>
                           </td>
                           <td className="py-2 px-3 text-gray-500">{formatDate(f.firstSessionDate || f.registeredAt)}</td>

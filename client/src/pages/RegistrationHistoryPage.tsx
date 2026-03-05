@@ -5,6 +5,7 @@ import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { getFamilyTypeLabel, getServiceTimeLabel, getStatusColor, getStatusLabel } from '../lib/utils';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
+import { familyDisplayNames } from '../lib/familyDisplayNames';
 
 function getMonthRange(monthsBack: number) {
   const now = new Date();
@@ -195,7 +196,7 @@ export default function RegistrationHistoryPage() {
                               <tr key={f.id} className="border-b border-gray-50 hover:bg-gray-50">
                                 <td className="py-2.5 px-4">
                                   <Link to={`/families/${f.id}`} className="text-primary-600 hover:underline font-medium">
-                                    {f.members?.map((m: any) => m.name).slice(0, 2).join(', ')}
+                                    {familyDisplayNames(f.members || [])}
                                   </Link>
                                 </td>
                                 <td className="py-2.5 px-4">

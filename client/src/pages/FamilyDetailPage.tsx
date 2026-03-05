@@ -5,7 +5,9 @@ import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { formatDate, getStatusColor, getStatusLabel, getFamilyTypeLabel, getServiceTimeLabel } from '../lib/utils';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
+import { familyDisplayNames } from '../lib/familyDisplayNames';
 import { useAuth } from '../hooks/useAuth';
+import ConfirmModal from '../components/ConfirmModal';
 
 /** 로컬 날짜를 YYYY-MM-DD 문자열로 변환 (타임존 안전) */
 function toLocaleDateStr(d: Date): string {
@@ -80,6 +82,7 @@ export default function FamilyDetailPage() {
   const [editingDateSession, setEditingDateSession] = useState<string | null>(null);
   const [collapsedSessions, setCollapsedSessions] = useState<Set<string>>(new Set());
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pendingEdits, setPendingEdits] = useState<Record<string, {
     date?: string; volunteerId?: string; needsNewVolunteer?: boolean;
     serviceTime?: string; memberAttending?: Record<string, boolean>; pastorVisit?: boolean;
@@ -238,7 +241,6 @@ export default function FamilyDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
     await api.deleteFamily(id!);
     navigate('/families');
   };
@@ -263,7 +265,7 @@ export default function FamilyDetailPage() {
     );
   }
 
-  const memberNames = family.members?.map((m: any) => m.name).join(', ') || '이름 없음';
+  const memberNames = familyDisplayNames(family.members || []);
 
   // 회차별 예정날짜 계산 (완료된 세션은 실제 날짜, 미완료 세션은 주간 단위 예측)
   const projectedDates: string[] = (() => {
@@ -322,7 +324,7 @@ export default function FamilyDetailPage() {
               </button>
             )}
             {isAdmin && (
-              <button onClick={handleDelete} className="p-2 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50">
+              <button onClick={() => setShowDeleteConfirm(true)} className="p-2 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50">
                 <Trash2 className="w-5 h-5" />
               </button>
             )}
@@ -815,6 +817,13 @@ export default function FamilyDetailPage() {
           />
         </div>
       )}
+
+      <ConfirmModal
+        open={showDeleteConfirm}
+        message="정말로 삭제하시겠습니까?"
+        onConfirm={() => { setShowDeleteConfirm(false); handleDelete(); }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

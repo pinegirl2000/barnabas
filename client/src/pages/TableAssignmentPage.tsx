@@ -6,6 +6,7 @@ import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
+import { familyDisplayNames } from '../lib/familyDisplayNames';
 
 export default function TableAssignmentPage() {
   const { isFamilyTeam } = useAuth();
@@ -254,7 +255,7 @@ function DraggableCard({ assignment, inverted }: { assignment: any; inverted?: b
     transform: `translate(${transform.x}px, ${transform.y}px)`,
   } : undefined;
 
-  const memberNames = assignment.family?.members?.filter((m: any) => m.attending).map((m: any) => m.name).join(', ') || '가족';
+  const memberNames = familyDisplayNames(assignment.family?.members || []);
   const nextSession = assignment.family?.sessions?.find((s: any) => !s.completed);
   const isPastorVisit = nextSession?.type === 'PASTOR_VISIT' || nextSession?.pastorVisit;
   const pastorLabel = isPastorVisit

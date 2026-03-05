@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { getServiceTimeLabel, getFamilyTypeLabel, getStatusLabel } from './utils';
+import { familyDisplayNames } from './familyDisplayNames';
 
 function fmtDate(d: string | Date | null): string {
   if (!d) return '';
@@ -18,7 +19,7 @@ export function exportFamiliesToExcel(families: any[], viewMode: 'family' | 'ind
       '등록일자': fmtDate(f.firstSessionDate || f.registeredAt),
       '유형': getFamilyTypeLabel(f.type),
       '예배': getServiceTimeLabel(f.serviceTime),
-      '가족이름': f.members?.map((m: any) => m.name).join(', ') || '',
+      '가족이름': familyDisplayNames(f.members || []),
       '연락처': f.members?.[0]?.phone || '',
       '주소': f.address || '',
       '상태': getStatusLabel(f.status),

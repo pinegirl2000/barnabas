@@ -3,6 +3,7 @@ import { Heart, Plus, Edit2, Trash2, X, Save } from 'lucide-react';
 import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
+import ConfirmModal from '../components/ConfirmModal';
 import { getServiceTimeLabel } from '../lib/utils';
 
 export default function VolunteerPage() {
@@ -11,6 +12,7 @@ export default function VolunteerPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', isInternal: true, availability: 'BOTH', phone: '', email: '' });
 
   const fetchVolunteers = async () => {
@@ -58,9 +60,9 @@ export default function VolunteerPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('삭제하시겠습니까?')) return;
     await api.deleteVolunteer(id);
     await fetchVolunteers();
+    setDeleteTarget(null);
   };
 
   return (
@@ -159,7 +161,7 @@ export default function VolunteerPage() {
                       <button onClick={() => handleEdit(v)} className="p-1 text-gray-400 hover:text-blue-600 rounded">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => handleDelete(v.id)} className="p-1 text-gray-400 hover:text-red-600 rounded">
+                      <button onClick={() => setDeleteTarget(v.id)} className="p-1 text-gray-400 hover:text-red-600 rounded">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -175,6 +177,13 @@ export default function VolunteerPage() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        message="정말로 삭제하시겠습니까?"
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

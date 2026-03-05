@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Building2, MapPin, Plus, Edit2, Trash2, X, Save, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import Header from '../components/layout/Header';
 import { api } from '../api/client';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function DistrictPage() {
   const [districts, setDistricts] = useState<any[]>([]);
@@ -16,6 +17,7 @@ export default function DistrictPage() {
   // 접기/펼치기
   const [expandedDistricts, setExpandedDistricts] = useState<Set<string>>(new Set());
   const [expandedRegions, setExpandedRegions] = useState<Set<string>>(new Set());
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: string; id: string; label: string } | null>(null);
 
   const fetchDistricts = async () => {
     setLoading(true);
@@ -65,7 +67,6 @@ export default function DistrictPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('교구를 삭제하시겠습니까?')) return;
     await api.deleteDistrict(id);
     await fetchDistricts();
   };
@@ -87,7 +88,6 @@ export default function DistrictPage() {
   };
 
   const handleDeleteRegion = async (regionId: string) => {
-    if (!confirm('지역을 삭제하시겠습니까?')) return;
     await api.deleteRegion(regionId);
     await fetchDistricts();
   };
@@ -109,7 +109,6 @@ export default function DistrictPage() {
   };
 
   const handleDeleteZone = async (zoneId: string) => {
-    if (!confirm('구역을 삭제하시겠습니까?')) return;
     await api.deleteZone(zoneId);
     await fetchDistricts();
   };
@@ -187,7 +186,7 @@ export default function DistrictPage() {
                     <button onClick={() => { setEditing(d); setName(d.name); setShowForm(true); }} className="p-1.5 text-gray-400 hover:text-blue-600 rounded">
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button onClick={() => handleDelete(d.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded">
+                    <button onClick={() => setDeleteConfirm({ type: 'district', id: d.id, label: '교구' })} className="p-1.5 text-gray-400 hover:text-red-600 rounded">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -236,7 +235,7 @@ export default function DistrictPage() {
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
-                              <button onClick={() => handleDeleteRegion(r.id)} className="p-1 text-gray-400 hover:text-red-600 rounded">
+                              <button onClick={() => setDeleteConfirm({ type: 'region', id: r.id, label: '지역' })} className="p-1 text-gray-400 hover:text-red-600 rounded">
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
@@ -291,7 +290,7 @@ export default function DistrictPage() {
                                       >
                                         <Edit2 className="w-3.5 h-3.5" />
                                       </button>
-                                      <button onClick={() => handleDeleteZone(z.id)} className="p-1 text-gray-400 hover:text-red-600 rounded">
+                                      <button onClick={() => setDeleteConfirm({ type: 'zone', id: z.id, label: '구역' })} className="p-1 text-gray-400 hover:text-red-600 rounded">
                                         <Trash2 className="w-3.5 h-3.5" />
                                       </button>
                                     </div>
@@ -360,6 +359,19 @@ export default function DistrictPage() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={!!deleteConfirm}
+        message={`정말로 ${deleteConfirm?.label || ''}을(를) 삭제하시겠습니까?`}
+        onConfirm={() => {
+          if (!deleteConfirm) return;
+          if (deleteConfirm.type === 'district') handleDelete(deleteConfirm.id);
+          else if (deleteConfirm.type === 'region') handleDeleteRegion(deleteConfirm.id);
+          else handleDeleteZone(deleteConfirm.id);
+          setDeleteConfirm(null);
+        }}
+        onCancel={() => setDeleteConfirm(null)}
+      />
     </div>
   );
 }

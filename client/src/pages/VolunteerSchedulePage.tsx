@@ -4,6 +4,7 @@ import { Calendar, User } from 'lucide-react';
 import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
+import { familyDisplayNames } from '../lib/familyDisplayNames';
 
 export default function VolunteerSchedulePage() {
   const [data, setData] = useState<any>(null);
@@ -122,7 +123,7 @@ export default function VolunteerSchedulePage() {
                                   rowHighlighted ? 'text-white hover:text-blue-300' : groupHighlighted ? 'text-slate-400' : 'text-slate-800 hover:text-primary-600'
                                 }`}
                               >
-                                {item.family.members?.map((m: any) => m.name).slice(0, 2).join(', ')}
+                                {familyDisplayNames(item.family.members || [])}
                                 <span className={`text-xs font-normal ml-1 ${rowHighlighted ? 'text-slate-400' : groupHighlighted ? 'text-slate-500' : 'text-gray-400'}`}>
                                   ({item.family.members?.filter((m: any) => m.attending).length || 0}명)
                                 </span>
@@ -201,7 +202,7 @@ export default function VolunteerSchedulePage() {
                         <tr key={item.sessionId} className="border-b border-orange-100 hover:bg-orange-50/50">
                           <td className="py-2 px-3">
                             <Link to={`/families/${item.family.id}`} className="text-slate-800 hover:text-primary-600 hover:underline font-medium">
-                              {item.family.members?.map((m: any) => m.name).slice(0, 2).join(', ')}
+                              {familyDisplayNames(item.family.members || [])}
                             </Link>
                           </td>
                           <td className="py-2 px-3 text-slate-600">
@@ -296,7 +297,7 @@ function MiniTableStrip({
             {hasAssignments ? (
               <div className="px-2 py-1 space-y-0.5">
                 {assignments.map((a: any, i: number) => {
-                  const names = a.family?.members?.map((m: any) => m.name).slice(0, 2).join(', ') || '가족';
+                  const names = familyDisplayNames(a.family?.members || []);
                   const vol = a.volunteer?.name;
                   return (
                     <div key={i}>

@@ -5,6 +5,7 @@ import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { formatDate, getFamilyTypeLabel, getServiceTimeLabel } from '../lib/utils';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
+import { familyDisplayNames } from '../lib/familyDisplayNames';
 
 export default function PhoneVisitPage() {
   const [families, setFamilies] = useState<any[]>([]);
@@ -66,9 +67,7 @@ export default function PhoneVisitPage() {
               const vol = phoneSessions.find((s: any) => s.volunteer)?.volunteer
                 || f.sessions?.find((s: any) => s.volunteer)?.volunteer;
               const volunteerName = volunteerDisplayName(vol) || '-';
-              const memberNames = f.members?.length <= 1
-                ? (f.members?.[0]?.name || '이름 없음')
-                : f.members.slice(0, 2).map((m: any) => m.name).join(', ');
+              const memberNames = familyDisplayNames(f.members || []);
 
               const projectedDates: Record<number, string> = {};
               let prevDate: Date | null = null;

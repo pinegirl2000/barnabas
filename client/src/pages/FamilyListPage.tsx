@@ -5,6 +5,7 @@ import Header from '../components/layout/Header';
 import { useFamilies } from '../hooks/useFamilies';
 import { formatDate, getStatusColor, getStatusLabel, getFamilyTypeLabel, getServiceTimeLabel } from '../lib/utils';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
+import { familyDisplayNames } from '../lib/familyDisplayNames';
 
 function getNextSessionDateRaw(family: any): string {
   const sessions = family.sessions || [];
@@ -148,11 +149,7 @@ function Users(props: any) {
 
 function useFamilyData(family: any) {
   const members = family.members || [];
-  const attending = members.filter((m: any) => m.attending);
-  const displayMembers = attending.length > 0 ? attending : members;
-  const memberNames = displayMembers.length === 0 ? '이름 없음'
-    : displayMembers.length === 1 ? displayMembers[0].name
-    : displayMembers.slice(0, 2).map((m: any) => m.name).join(', ');
+  const memberNames = familyDisplayNames(members);
   const completedCount = family.sessions?.filter((s: any) => s.completed).length || 0;
   const totalSessions = family.sessions?.length || 0;
   const volunteer = family.sessions?.find((s: any) => s.volunteerId)?.volunteer;
