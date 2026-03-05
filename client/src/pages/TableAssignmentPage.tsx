@@ -70,22 +70,22 @@ export default function TableAssignmentPage() {
         title="테이블 배정현황"
         subtitle={weekLabel}
         actions={
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <button onClick={() => changeWeek(-1)} className="p-1.5 hover:bg-gray-100 rounded">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              <button onClick={() => changeWeek(-1)} className="p-1 sm:p-1.5 hover:bg-gray-100 rounded">
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-sm font-medium px-2">{weekLabel}</span>
-              <button onClick={() => changeWeek(1)} className="p-1.5 hover:bg-gray-100 rounded">
+              <span className="text-xs sm:text-sm font-medium px-1 sm:px-2">{weekLabel}</span>
+              <button onClick={() => changeWeek(1)} className="p-1 sm:p-1.5 hover:bg-gray-100 rounded">
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
             {isFamilyTeam && (
               <button
                 onClick={handleAutoAssign}
-                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium"
+                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-xs sm:text-sm font-medium"
               >
-                <Zap className="w-4 h-4" />
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 자동 배정
               </button>
             )}
@@ -93,7 +93,7 @@ export default function TableAssignmentPage() {
         }
       />
 
-      <div className="p-6">
+      <div className="p-3 sm:p-6">
         {/* 1부/2부 탭 */}
         <div className="flex gap-1 mb-4">
           {[
@@ -131,27 +131,51 @@ export default function TableAssignmentPage() {
           </div>
         ) : (
           <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-3 gap-4">
-              {/* 헤더 행 */}
+            {/* PC: 3열 그리드 */}
+            <div className="hidden md:grid grid-cols-3 gap-4">
               <h3 className="text-sm font-semibold text-blue-700 text-center bg-blue-50 py-1.5 rounded-lg">새가족실 안쪽</h3>
               <h3 className="text-sm font-semibold text-emerald-700 text-center bg-emerald-50 py-1.5 rounded-lg">새가족실 바깥쪽</h3>
               <h3 className="text-sm font-semibold text-purple-700 text-center bg-purple-50 py-1.5 rounded-lg">오병이어홀</h3>
-              {/* Row 1: 테이블 1, 4, 7 */}
               {[[1,'blue'],[4,'emerald'],[7,'purple']].map(([num, zone]) => {
                 const table = data?.tables?.find((t: any) => t.tableNumber === num);
                 return table ? <TableSlot key={table.id} table={table} zone={zone as 'blue' | 'emerald' | 'purple'} serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
               })}
-              {/* Row 2: 테이블 2, 5, 8 */}
               {[[2,'blue'],[5,'emerald'],[8,'purple']].map(([num, zone]) => {
                 const table = data?.tables?.find((t: any) => t.tableNumber === num);
                 return table ? <TableSlot key={table.id} table={table} zone={zone as 'blue' | 'emerald' | 'purple'} serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
               })}
-              {/* Row 3: 테이블 3, 6 */}
               {[[3,'blue'],[6,'emerald'],[0,'purple']].map(([num, zone]) => {
                 if (num === 0) return <div key="empty-placeholder" />;
                 const table = data?.tables?.find((t: any) => t.tableNumber === num);
                 return table ? <TableSlot key={table.id} table={table} zone={zone as 'blue' | 'emerald' | 'purple'} serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
               })}
+            </div>
+
+            {/* 모바일: 새가족실 2열 + 오병이어홀 아래 */}
+            <div className="md:hidden space-y-4">
+              {/* 새가족실 안쪽 & 바깥쪽 */}
+              <div className="grid grid-cols-2 gap-2">
+                <h3 className="text-sm font-semibold text-blue-700 text-center bg-blue-50 py-1.5 rounded-lg">새가족실 안쪽</h3>
+                <h3 className="text-sm font-semibold text-emerald-700 text-center bg-emerald-50 py-1.5 rounded-lg">새가족실 바깥쪽</h3>
+                {[1,2,3].map(num => {
+                  const table = data?.tables?.find((t: any) => t.tableNumber === num);
+                  return table ? <TableSlot key={table.id} table={table} zone="blue" serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
+                })}
+                {[4,5,6].map(num => {
+                  const table = data?.tables?.find((t: any) => t.tableNumber === num);
+                  return table ? <TableSlot key={table.id} table={table} zone="emerald" serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
+                })}
+              </div>
+              {/* 오병이어홀 */}
+              <div>
+                <h3 className="text-sm font-semibold text-purple-700 text-center bg-purple-50 py-1.5 rounded-lg mb-2">오병이어홀</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {[7,8].map(num => {
+                    const table = data?.tables?.find((t: any) => t.tableNumber === num);
+                    return table ? <TableSlot key={table.id} table={table} zone="purple" serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
+                  })}
+                </div>
+              </div>
             </div>
           </DndContext>
         )}
