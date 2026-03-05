@@ -170,7 +170,7 @@ export default function DashboardPage() {
                           for (const m of (gi.family.members || [])) {
                             if (!m.attending) continue;
                             if (m.birthDate) {
-                              const [y, mo, d] = m.birthDate.split('-').map(Number);
+                              const [y, mo, d] = m.birthDate.split(/[-\/]/).map(Number);
                               const birth = new Date(y, mo - 1, d);
                               const age = now.getFullYear() - birth.getFullYear() - (now < new Date(now.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
                               age <= 6 ? groupChildren++ : groupAdults++;
