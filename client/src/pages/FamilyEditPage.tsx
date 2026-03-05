@@ -202,7 +202,7 @@ export default function FamilyEditPage() {
     return (
       <div className="flex-1">
         <Header title="새가족 정보 수정" />
-        <div className="p-6 flex items-center justify-center h-64">
+        <div className="p-3 sm:p-6 flex items-center justify-center h-64">
           <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full" />
         </div>
       </div>
@@ -213,7 +213,7 @@ export default function FamilyEditPage() {
     <div className="flex-1">
       <Header title="새가족 정보 수정" subtitle="가족 정보를 수정합니다" />
 
-      <div className="p-6 max-w-5xl">
+      <div className="p-3 sm:p-6 max-w-5xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* 기본 정보 */}
           <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
@@ -274,7 +274,7 @@ export default function FamilyEditPage() {
           </div>
 
           {/* 가족 구성원 */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900">
                 {isSingle ? '본인 정보' : `가족 구성원 (${members.length}명)`}

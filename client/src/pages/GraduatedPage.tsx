@@ -37,9 +37,9 @@ export default function GraduatedPage() {
         subtitle={`${year}년 수료 ${filtered.length}가족`}
       />
 
-      <div className="p-6 space-y-4">
+      <div className="p-3 sm:p-6 space-y-4">
         {/* 연도 탭 + 검색 */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
           <div className="flex gap-2">
             {YEARS.map(y => (
               <button
@@ -62,7 +62,7 @@ export default function GraduatedPage() {
               placeholder="이름 검색"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm w-48 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -78,7 +78,40 @@ export default function GraduatedPage() {
             <p className="text-gray-400">{search ? '검색 결과가 없습니다' : `${year}년 수료 가족이 없습니다`}</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <>
+          {/* 모바일 카드 뷰 */}
+          <div className="sm:hidden space-y-3">
+            {filtered.map((f, idx) => {
+              const volunteerName = volunteerDisplayName(f.sessions?.find((s: any) => s.volunteer)?.volunteer) || '-';
+              const phoneVisits: any[] = f.phoneVisits || [];
+              return (
+                <div key={f.id} className="bg-white rounded-xl border border-gray-200 p-3">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-xs text-gray-400">{idx + 1}</span>
+                      <Link to={`/families/${f.id}`} className="text-sm text-primary-600 font-medium truncate">{f.members.map((m: any) => m.name).slice(0, 2).join(', ')}</Link>
+                    </div>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] shrink-0 ${f.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>{getFamilyTypeLabel(f.type)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
+                    <span>수료일: {f.graduatedAt ? formatDate(f.graduatedAt) : '-'}</span>
+                    <span>바나바: {volunteerName}</span>
+                  </div>
+                  {phoneVisits.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {phoneVisits.map((pv: any) => (
+                        <span key={pv.sessionNumber} className={`text-[10px] px-1.5 py-0.5 rounded ${pv.completed ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}`}>
+                          {pv.sessionNumber}주차 {pv.completed ? '완료' : (pv.date ? formatDate(pv.date) : '예정')}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="hidden sm:block bg-white rounded-xl border border-gray-200 overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
@@ -137,6 +170,7 @@ export default function GraduatedPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
     </div>

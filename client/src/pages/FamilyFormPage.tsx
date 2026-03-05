@@ -190,12 +190,12 @@ export default function FamilyFormPage() {
     <div className="flex-1">
       <Header title="새가족 등록" subtitle="새로운 가족을 등록합니다" />
 
-      <div className="p-6 max-w-5xl">
+      <div className="p-3 sm:p-6 max-w-5xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* 기본 정보 */}
           <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
             <h3 className="font-semibold text-gray-900 text-sm mb-2">기본 정보</h3>
-            <div className="grid grid-cols-4 gap-x-3 gap-y-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-2">
               <div>
                 <label className="block text-xs text-gray-500 mb-0.5">유형</label>
                 <select value={type} onChange={e => setType(e.target.value as any)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm">
@@ -262,7 +262,7 @@ export default function FamilyFormPage() {
           </div>
 
           {/* 가족 구성원 */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900">
                 {isSingle ? '본인 정보' : `가족 구성원 (${members.length}명)`}

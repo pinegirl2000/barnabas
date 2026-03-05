@@ -175,31 +175,26 @@ dashboardRouter.get('/', async (_req: Request, res: Response) => {
       .filter(Boolean)
       .sort((a: any, b: any) => (a.sessionNumber || 0) - (b.sessionNumber || 0));
 
-    // 지난주 등록: 1주차 교육 날짜가 지난 주일인 가족
-    // 타임존 문제 방지를 위해 DB 범위 필터 없이 JS에서 로컬 날짜 문자열로 비교
-    const lastSunday = getLastSunday();
-    const lastSundayStr = toLocaleDateStr(lastSunday);
+    // 지난주 등록: 1주차 완료일이 최근 7일 이내인 가족
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
 
-    console.log('[지난주등록] lastSunday:', lastSunday.toISOString(), '→ lastSundayStr:', lastSundayStr);
-
-    const allFirstSessions = await prisma.sessionRecord.findMany({
+    const recentFirstSessions = await prisma.sessionRecord.findMany({
       where: {
         sessionNumber: 1,
-        date: { not: null },
+        date: { gte: sevenDaysAgo },
       },
       include: {
         family: { include: { members: true } },
       },
+      orderBy: { date: 'desc' },
     });
 
-    console.log('[지난주등록] 1주차 세션 수:', allFirstSessions.length,
-      '날짜들:', allFirstSessions.map(s => s.date ? `${s.date.toISOString()} → ${toLocaleDateStr(new Date(s.date))}` : 'null'));
-
-    const recentFamilies = allFirstSessions
-      .filter(s => s.date && toLocaleDateStr(new Date(s.date)) === lastSundayStr)
-      .map(s => ({ ...s.family, firstSessionDate: s.date }));
-
-    console.log('[지난주등록] 매칭 가족 수:', recentFamilies.length);
+    const recentFamilies = recentFirstSessions.map(s => ({
+      ...s.family,
+      firstSessionDate: s.date,
+    }));
 
     res.json({
       stats: {

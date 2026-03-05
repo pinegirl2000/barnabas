@@ -40,7 +40,7 @@ export default function DashboardPage() {
       <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
         {/* 이번주 바나바일정 제목 */}
         <div className="text-lg font-bold text-gray-900">
-          {(() => { const s = new Date(); const d = s.getDay(); s.setDate(s.getDate() + (d === 0 ? 0 : 7 - d)); return `${s.getFullYear()}년 ${s.getMonth() + 1}월${s.getDate()}일`; })()} 새가족부 일정
+          {(() => { const s = new Date(); const d = s.getDay(); s.setDate(s.getDate() + (d === 0 ? 0 : 7 - d)); return `${s.getMonth() + 1}월${s.getDate()}일`; })()} 새가족부 일정
         </div>
 
         {/* 통계 카드 */}
@@ -50,7 +50,7 @@ export default function DashboardPage() {
           const pvFirst = pastorVisitSessions.filter((s: any) => s.family.serviceTime === 'FIRST').length;
           const pvSecond = pastorVisitSessions.filter((s: any) => s.family.serviceTime !== 'FIRST').length;
           return (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
               <StatCard
                 icon={Calendar}
                 label="바나바교육 예정"
@@ -61,20 +61,20 @@ export default function DashboardPage() {
                 color="text-pink-600 bg-pink-50"
                 sub={`(보류중 : ${stats.onHoldFamilies || 0}건)`}
               />
-              <div className="bg-white rounded-xl border border-gray-200 px-4 py-2.5">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-purple-600 bg-purple-50">
-                    <Heart className="w-4 h-4" />
+              <div className="bg-white rounded-xl border border-gray-200 px-2 sm:px-4 py-2 sm:py-2.5">
+                <div className="flex items-center gap-1.5 sm:gap-2.5">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 text-purple-600 bg-purple-50">
+                    <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs text-gray-500 whitespace-nowrap mb-1">담임목사님 면담예정</p>
-                    <div className="flex items-center gap-1.5">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-500 text-white text-[10px] font-bold">1부후</span>
-                      <span className="text-sm font-bold text-gray-900">{pvFirst}건</span>
+                    <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap mb-0.5 sm:mb-1">담임목사님 면담</p>
+                    <div className="flex items-center gap-1 sm:gap-1.5">
+                      <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full bg-blue-500 text-white text-[8px] sm:text-[10px] font-bold">1부</span>
+                      <span className="text-xs sm:text-sm font-bold text-gray-900">{pvFirst}건</span>
                     </div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-indigo-500 text-white text-[10px] font-bold">2부후</span>
-                      <span className="text-sm font-bold text-gray-900">{pvSecond}건</span>
+                    <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5">
+                      <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full bg-indigo-500 text-white text-[8px] sm:text-[10px] font-bold">2부</span>
+                      <span className="text-xs sm:text-sm font-bold text-gray-900">{pvSecond}건</span>
                     </div>
                   </div>
                 </div>
@@ -99,9 +99,9 @@ export default function DashboardPage() {
               {(() => {
                 if (data?.thisSundayStr) {
                   const [, m, d] = data.thisSundayStr.split('-');
-                  return `이번주 ${parseInt(m)}월${parseInt(d)}일 바나바 일정`;
+                  return `${parseInt(m)}월${parseInt(d)}일 바나바 교육일정`;
                 }
-                return '이번주 바나바 일정';
+                return '바나바 교육일정';
               })()}
             </h3>
             {!isUserOnly && (
@@ -358,7 +358,7 @@ export default function DashboardPage() {
               <div className="bg-white rounded-xl border border-gray-200 p-5">
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-orange-500" />
-                  바나바 배정/변경 필요
+                  바나바 배정 필요
                 </h3>
                 {data?.needsNewVolunteer?.length > 0 ? (
                   <ul className="space-y-2">
@@ -412,7 +412,7 @@ export default function DashboardPage() {
             <div className="bg-white rounded-xl border border-gray-200 p-5">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-emerald-500" />
-                최근 등록 새가족
+                지난주 등록 새가족
               </h3>
               {data?.recentFamilies?.length > 0 ? (
                 <div className="overflow-x-auto">
@@ -462,15 +462,15 @@ export default function DashboardPage() {
 
 function StatCard({ icon: Icon, label, value, unit, color, sub }: { icon: any; label: string; value: number; unit?: string; color: string; sub?: string }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 px-4 py-2.5">
-      <div className="flex items-center gap-2.5">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
-          <Icon className="w-4 h-4" />
+    <div className="bg-white rounded-xl border border-gray-200 px-2 sm:px-4 py-2 sm:py-2.5">
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
+        <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
+          <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
         </div>
         <div className="min-w-0">
-          <p className="text-xs text-gray-500 whitespace-nowrap">{label}</p>
-          <p className="text-xl font-bold text-gray-900 leading-tight">{value}<span className="text-xs font-normal text-gray-500 ml-0.5">{unit}</span></p>
-          {sub && <p className="text-[10px] text-gray-400 leading-tight">{sub}</p>}
+          <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{label}</p>
+          <p className="text-base sm:text-xl font-bold text-gray-900 leading-tight">{value}<span className="text-[10px] sm:text-xs font-normal text-gray-500 ml-0.5">{unit}</span></p>
+          {sub && <p className="text-[8px] sm:text-[10px] text-gray-400 leading-tight">{sub}</p>}
         </div>
       </div>
     </div>
