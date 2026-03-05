@@ -44,7 +44,7 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/upload', uploadRouter);
 
 // Static file serving for uploads
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 
 // Production: serve React client
 if (process.env.NODE_ENV === 'production') {

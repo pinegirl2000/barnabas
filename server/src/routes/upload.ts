@@ -9,7 +9,7 @@ export const uploadRouter = Router();
 uploadRouter.use(authenticate);
 
 // uploads 디렉토리 생성
-const uploadDir = path.resolve('uploads');
+const uploadDir = path.resolve(__dirname, '../../uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -45,6 +45,7 @@ async function compressToTarget(buffer: Buffer): Promise<Buffer> {
   while (result.length > TARGET_SIZE && quality > 20) {
     quality -= 10;
     result = await sharp(buffer)
+      .rotate()
       .resize(width, width, { fit: 'inside', withoutEnlargement: true })
       .jpeg({ quality })
       .toBuffer();
@@ -54,6 +55,7 @@ async function compressToTarget(buffer: Buffer): Promise<Buffer> {
   while (result.length > TARGET_SIZE && width > 200) {
     width -= 100;
     result = await sharp(buffer)
+      .rotate()
       .resize(width, width, { fit: 'inside', withoutEnlargement: true })
       .jpeg({ quality })
       .toBuffer();
