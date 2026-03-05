@@ -35,24 +35,24 @@ export default function DashboardPage() {
   return (
     <div className="flex-1">
       <div className="flex items-center justify-between px-3 sm:px-6 pt-3 sm:pt-4">
-        <h2 className="text-lg font-bold text-gray-900">
+        <h2 className="text-lg font-bold text-gray-900 whitespace-nowrap">
           {`대시보드 - ${(() => { const s = new Date(); const d = s.getDay(); s.setDate(s.getDate() + (d === 0 ? 0 : 7 - d)); return `${s.getMonth() + 1}월${s.getDate()}일`; })()}`}
         </h2>
         {!isUserOnly && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Link
               to="/families/new"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors text-center leading-tight"
             >
-              <UserPlus className="w-3.5 h-3.5" />
-              새가족 등록
+              <UserPlus className="w-3.5 h-3.5 shrink-0 hidden sm:block" />
+              <span>새가족<br className="sm:hidden" /> 등록</span>
             </Link>
             <Link
               to="/assignments"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 transition-colors text-center leading-tight"
             >
-              <Grid3X3 className="w-3.5 h-3.5" />
-              테이블 배정보기
+              <Grid3X3 className="w-3.5 h-3.5 shrink-0 hidden sm:block" />
+              <span>테이블<br className="sm:hidden" /> 배정보기</span>
             </Link>
           </div>
         )}
