@@ -33,16 +33,11 @@ export default function DashboardPage() {
   return (
     <div className="flex-1">
       <Header
-        title="대시보드"
+        title={`대시보드 - ${(() => { const s = new Date(); const d = s.getDay(); s.setDate(s.getDate() + (d === 0 ? 0 : 7 - d)); return `${s.getMonth() + 1}월${s.getDate()}일`; })()}`}
         subtitle=""
       />
 
       <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-        {/* 이번주 바나바일정 제목 */}
-        <div className="text-lg font-bold text-gray-900">
-          {(() => { const s = new Date(); const d = s.getDay(); s.setDate(s.getDate() + (d === 0 ? 0 : 7 - d)); return `${s.getMonth() + 1}월${s.getDate()}일`; })()} 새가족부 일정
-        </div>
-
         {/* 통계 카드 */}
         {(() => {
           const schedule = data?.weeklyVolunteerSchedule || [];
