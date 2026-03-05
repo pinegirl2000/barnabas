@@ -155,16 +155,20 @@ export default function TableAssignmentPage() {
             <div className="md:hidden space-y-4">
               {/* 새가족실 안쪽 & 바깥쪽 */}
               <div className="grid grid-cols-2 gap-2">
-                <h3 className="text-sm font-semibold text-blue-700 text-center bg-blue-50 py-1.5 rounded-lg">새가족실 안쪽</h3>
-                <h3 className="text-sm font-semibold text-emerald-700 text-center bg-emerald-50 py-1.5 rounded-lg">새가족실 바깥쪽</h3>
-                {[1,2,3].map(num => {
-                  const table = data?.tables?.find((t: any) => t.tableNumber === num);
-                  return table ? <TableSlot key={table.id} table={table} zone="blue" serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
-                })}
-                {[4,5,6].map(num => {
-                  const table = data?.tables?.find((t: any) => t.tableNumber === num);
-                  return table ? <TableSlot key={table.id} table={table} zone="emerald" serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
-                })}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-blue-700 text-center bg-blue-50 py-1.5 rounded-lg">새가족실 안쪽</h3>
+                  {[1,2,3].map(num => {
+                    const table = data?.tables?.find((t: any) => t.tableNumber === num);
+                    return table ? <TableSlot key={table.id} table={table} zone="blue" serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
+                  })}
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-emerald-700 text-center bg-emerald-50 py-1.5 rounded-lg">새가족실 바깥쪽</h3>
+                  {[4,5,6].map(num => {
+                    const table = data?.tables?.find((t: any) => t.tableNumber === num);
+                    return table ? <TableSlot key={table.id} table={table} zone="emerald" serviceFilter={serviceFilter} /> : <div key={`empty-${num}`} />;
+                  })}
+                </div>
               </div>
               {/* 오병이어홀 */}
               <div>
