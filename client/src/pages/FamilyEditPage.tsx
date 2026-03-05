@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2 } from 'lucide-react';
 import Header from '../components/layout/Header';
 import DateInput from '../components/ui/DateInput';
-import { volunteerListName } from '../lib/volunteerDisplay';
 import { api } from '../api/client';
 import { useTableNavigation } from '../hooks/useTableNavigation';
 
@@ -268,7 +267,7 @@ export default function FamilyEditPage() {
                 <label className="block text-xs text-gray-500 mb-0.5">담당 바나바</label>
                 <select value={volunteerId} onChange={e => setVolunteerId(e.target.value)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm">
                   <option value="">미배정</option>
-                  {volunteers.map(v => <option key={v.id} value={v.id}>{volunteerListName(v)}</option>)}
+                  {volunteers.filter(v => v.isInternal !== false).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
                 </select>
               </div>
             </div>

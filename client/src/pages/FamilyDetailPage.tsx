@@ -4,7 +4,7 @@ import { ArrowLeft, Trash2, Save, X, CheckCircle, Circle, Edit2 } from 'lucide-r
 import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { formatDate, getStatusColor, getStatusLabel, getFamilyTypeLabel, getServiceTimeLabel } from '../lib/utils';
-import { volunteerDisplayName, volunteerListName } from '../lib/volunteerDisplay';
+import { volunteerDisplayName } from '../lib/volunteerDisplay';
 import { useAuth } from '../hooks/useAuth';
 
 /** 로컬 날짜를 YYYY-MM-DD 문자열로 변환 (타임존 안전) */
@@ -590,8 +590,8 @@ export default function FamilyDetailPage() {
                         className={`w-full text-sm border rounded-lg px-3 py-2.5 ${(pending?.needsNewVolunteer ?? session.needsNewVolunteer) ? 'border-orange-300 text-orange-600 bg-orange-50' : 'border-gray-200'}`}
                       >
                         <option value="">미배정</option>
-                        {volunteers.map((v: any) => (
-                          <option key={v.id} value={v.id}>{volunteerListName(v)}</option>
+                        {volunteers.filter((v: any) => v.isInternal !== false).map((v: any) => (
+                          <option key={v.id} value={v.id}>{v.name}</option>
                         ))}
                         <option value="__ZONE_LEADER__">구역장</option>
                         <option value="__CHANGE_REQUEST__">바나바 변경요청</option>
