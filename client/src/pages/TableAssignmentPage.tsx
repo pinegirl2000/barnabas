@@ -95,7 +95,7 @@ export default function TableAssignmentPage() {
 
       <div className="p-3 sm:p-6">
         {/* 1부/2부 탭 */}
-        <div className="flex gap-1 mb-4">
+        <div className="grid grid-cols-2 gap-1 mb-4">
           {[
             { key: 'FIRST' as const, label: '1부' },
             { key: 'SECOND' as const, label: '2부' },
@@ -103,7 +103,7 @@ export default function TableAssignmentPage() {
             <button
               key={tab.key}
               onClick={() => setServiceFilter(tab.key)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`py-2 rounded-lg text-sm font-medium transition-colors text-center ${
                 serviceFilter === tab.key
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
