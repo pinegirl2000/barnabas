@@ -276,9 +276,8 @@ function DraggableCard({ assignment, inverted }: { assignment: any; inverted?: b
       {(() => {
         const sessions = assignment.family?.sessions || [];
         const completedWithVol = sessions.filter((s: any) => s.completed && s.volunteerId);
-        const sessionVol = completedWithVol.length > 0
-          ? completedWithVol[completedWithVol.length - 1].volunteer
-          : nextSession?.volunteer;
+        const sessionVol = nextSession?.volunteer
+          || (completedWithVol.length > 0 ? completedWithVol[completedWithVol.length - 1].volunteer : null);
         return (
           <div className="text-xs mt-1 text-gray-500 text-center">바나바: {sessionVol ? volunteerDisplayName(sessionVol) : '미배정'}</div>
         );
