@@ -37,7 +37,7 @@ export default function DashboardPage() {
         subtitle=""
       />
 
-      <div className="p-6 space-y-6">
+      <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
         {/* 이번주 바나바일정 제목 */}
         <div className="text-lg font-bold text-gray-900">
           {(() => { const s = new Date(); const d = s.getDay(); s.setDate(s.getDate() + (d === 0 ? 0 : 7 - d)); return `${s.getFullYear()}년 ${s.getMonth() + 1}월${s.getDate()}일`; })()} 새가족부 일정
@@ -50,7 +50,7 @@ export default function DashboardPage() {
           const pvFirst = pastorVisitSessions.filter((s: any) => s.family.serviceTime === 'FIRST').length;
           const pvSecond = pastorVisitSessions.filter((s: any) => s.family.serviceTime !== 'FIRST').length;
           return (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <StatCard
                 icon={Calendar}
                 label="바나바교육 예정"
@@ -92,18 +92,20 @@ export default function DashboardPage() {
         })()}
 
         {/* 이번주 바나바 일정 */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-pink-500" />
-            {(() => {
-              if (data?.thisSundayStr) {
-                const [, m, d] = data.thisSundayStr.split('-');
-                return `이번주 ${parseInt(m)}월${parseInt(d)}일 바나바 일정`;
-              }
-              return '이번주 바나바 일정';
-            })()}
+        <div className="bg-white rounded-xl border border-gray-200 p-3 sm:p-5">
+          <div className="mb-3 sm:mb-4">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-sm sm:text-base">
+              <Calendar className="w-5 h-5 text-pink-500" />
+              {(() => {
+                if (data?.thisSundayStr) {
+                  const [, m, d] = data.thisSundayStr.split('-');
+                  return `이번주 ${parseInt(m)}월${parseInt(d)}일 바나바 일정`;
+                }
+                return '이번주 바나바 일정';
+              })()}
+            </h3>
             {!isUserOnly && (
-              <div className="ml-auto flex items-center gap-2">
+              <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:float-right sm:-mt-7">
                 <Link
                   to="/families/new"
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
@@ -120,7 +122,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
             )}
-          </h3>
+          </div>
           {data?.weeklyVolunteerSchedule?.length > 0 ? (
             (() => {
               const serviceOrder = ['FIRST', 'SECOND', 'THIRD', 'BOTH'];
@@ -147,16 +149,14 @@ export default function DashboardPage() {
                 g.items.sort((a: any, b: any) => (a.sessionNumber || 0) - (b.sessionNumber || 0));
               }
 
-              const colCount = 5;
-
               return (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead>
+                    <thead className="hidden sm:table-header-group">
                       <tr className="bg-slate-50 border-b border-slate-200">
                         <th className="text-left py-2.5 px-3 text-xs text-slate-500 font-medium">새가족</th>
                         <th className="text-left py-2.5 px-3 text-xs text-slate-500 font-medium">예정단계</th>
-                        <th className="text-left py-2.5 px-3 text-xs text-slate-500 font-medium w-32">진행</th>
+                        <th className="text-left py-2.5 px-3 text-xs text-slate-500 font-medium w-32 hidden md:table-cell">진행</th>
                         <th className="text-left py-2.5 px-3 text-xs text-slate-500 font-medium">바나바</th>
                         {!isUserOnly && <th className="text-center py-2.5 px-3 text-xs text-slate-500 font-medium w-16"></th>}
                       </tr>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                         }
                         return [
                           <tr key={`group-${group.svc}`} className="bg-slate-50/80 border-b border-slate-200">
-                            <td colSpan={colCount} className="py-2 px-3">
+                            <td colSpan={!isUserOnly ? 5 : 4} className="py-2 px-3">
                               <div className="flex items-center gap-2">
                                 <span className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-medium ${
                                   group.svc === 'FIRST' ? 'bg-blue-500 text-white' :
@@ -197,8 +197,8 @@ export default function DashboardPage() {
                           ...group.items.map((s: any, gIdx: number) => {
                             const isMySchedule = user?.volunteerId && s.volunteerId === user.volunteerId;
                             return (
-                            <tr key={s.sessionId} className={`border-b border-slate-100 ${isMySchedule ? 'bg-yellow-50 ring-1 ring-inset ring-yellow-300' : 'hover:bg-slate-50/50'}`}>
-                              <td className="py-2.5 px-3">
+                            <tr key={s.sessionId} className={`border-b border-slate-100 ${isMySchedule ? 'bg-yellow-50 ring-1 ring-inset ring-yellow-300' : 'hover:bg-slate-50/50'} sm:table-row flex flex-col sm:flex-none p-3 sm:p-0`}>
+                              <td className="py-1 sm:py-2.5 px-0 sm:px-3">
                                 <div className="flex items-center gap-2">
                                   <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold shrink-0">{gIdx + 1}</span>
                                   {isUserOnly ? (
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                                   )}
                                 </div>
                               </td>
-                              <td className="py-2.5 px-3">
+                              <td className="py-1 sm:py-2.5 px-0 sm:px-3">
                                 <div className="flex items-center gap-1 flex-wrap">
                                   <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${
                                     s.sessionType === 'EDUCATION' ? 'bg-blue-50 text-blue-600' :
@@ -226,9 +226,13 @@ export default function DashboardPage() {
                                   {s.isGraduating && (
                                     <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-pink-100 text-pink-600">수료예정</span>
                                   )}
+                                  <span className={`sm:hidden text-xs ${isMySchedule ? 'text-yellow-700 font-bold' : 'text-slate-500'}`}>
+                                    · {volunteerDisplayName(s.volunteer) || '미배정'}
+                                    {isMySchedule && <span className="ml-1 text-[10px] px-1 py-0.5 rounded bg-yellow-200 text-yellow-800">나</span>}
+                                  </span>
                                 </div>
                               </td>
-                              <td className="py-2.5 px-3">
+                              <td className="py-1 sm:py-2.5 px-0 sm:px-3 hidden md:table-cell">
                                 <div className="flex items-center gap-2">
                                   <div className="flex gap-0.5 flex-1 min-w-[50px]">
                                     {Array.from({ length: s.totalSessions }, (_, i) => (
@@ -245,12 +249,12 @@ export default function DashboardPage() {
                                   <span className="text-xs text-slate-400 whitespace-nowrap">{s.completedCount}/{s.totalSessions}</span>
                                 </div>
                               </td>
-                              <td className={`py-2.5 px-3 whitespace-nowrap ${isMySchedule ? 'text-yellow-700 font-bold' : 'text-slate-600'}`}>
+                              <td className={`py-1 sm:py-2.5 px-0 sm:px-3 whitespace-nowrap hidden sm:table-cell ${isMySchedule ? 'text-yellow-700 font-bold' : 'text-slate-600'}`}>
                                 {volunteerDisplayName(s.volunteer) || <span className="text-rose-400">미배정</span>}
                                 {isMySchedule && <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-yellow-200 text-yellow-800">나</span>}
                               </td>
                               {!isUserOnly && (
-                                <td className="py-2.5 px-3 text-center">
+                                <td className="py-1 sm:py-2.5 px-0 sm:px-3 sm:text-center hidden sm:table-cell">
                                   <Link
                                     to={`/families/${s.family.id}?editSession=${s.sessionId}`}
                                     className="text-xs px-2.5 py-1 text-slate-500 border border-slate-200 rounded-md hover:bg-slate-50 hover:text-slate-700 whitespace-nowrap transition-colors"
