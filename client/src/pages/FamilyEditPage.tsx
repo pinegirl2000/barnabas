@@ -230,10 +230,32 @@ export default function FamilyEditPage() {
 
   return (
     <div className="flex-1">
-      <Header title="새가족 정보 수정" subtitle="가족 정보를 수정합니다" />
+      <div className="flex items-center justify-between px-3 sm:px-6 pt-3 sm:pt-4">
+        <h2 className="text-lg font-bold text-gray-900">새가족 정보 수정</h2>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate(`/families/${id}`)}
+            className="px-4 py-1.5 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 text-sm"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const form = document.getElementById('family-edit-form') as HTMLFormElement;
+              form?.requestSubmit();
+            }}
+            disabled={submitting}
+            className="px-4 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium disabled:opacity-50"
+          >
+            {submitting ? '저장 중...' : '저장'}
+          </button>
+        </div>
+      </div>
 
       <div className="p-3 sm:p-6 max-w-5xl">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form id="family-edit-form" onSubmit={handleSubmit} className="space-y-6">
           {/* 기본 정보 */}
           <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
             <h3 className="font-semibold text-gray-900 text-sm mb-2">기본 정보</h3>
@@ -619,23 +641,8 @@ export default function FamilyEditPage() {
             </div>
           </div>
 
-          {/* 제출 */}
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium disabled:opacity-50"
-            >
-              {submitting ? '저장 중...' : '저장'}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate(`/families/${id}`)}
-              className="px-6 py-2.5 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 text-sm"
-            >
-              취소
-            </button>
-          </div>
+          {/* 하단 여백 */}
+          <div className="h-4" />
         </form>
       </div>
     </div>

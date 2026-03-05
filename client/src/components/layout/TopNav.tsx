@@ -162,13 +162,13 @@ export default function TopNav() {
                 to={item.to}
                 end={item.to === '/'}
                 className={cn(
-                  'flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-all relative',
+                  'flex-1 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 sm:py-2.5 text-[10px] sm:text-xs font-medium transition-all relative whitespace-nowrap',
                   isActive
                     ? 'text-primary-700'
                     : 'text-gray-400 hover:text-gray-600'
                 )}
               >
-                <item.icon className={cn('w-4 h-4', isActive && 'text-primary-600')} />
+                <item.icon className={cn('w-4 h-4 shrink-0', isActive && 'text-primary-600')} />
                 {item.label}
                 {/* 활성 인디케이터 */}
                 {isActive && (

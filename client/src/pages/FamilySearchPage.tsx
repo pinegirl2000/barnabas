@@ -153,15 +153,15 @@ export default function FamilySearchPage() {
               onClick={() => exportFamiliesToExcel(filtered, viewMode)}
               className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100"
             >
-              <Download className="w-4 h-4" /> Excel
+              <Download className="w-4 h-4" /> Excel다운
             </button>
 
-            {/* 엑셀 붙여넣기 등록 */}
+            {/* 엑셀 붙여넣기로 한꺼번에 등록 */}
             <button
               onClick={() => setShowPasteModal(true)}
               className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100"
             >
-              <Upload className="w-4 h-4" /> 붙여넣기 등록
+              <Upload className="w-4 h-4" /> 붙여넣기로 한꺼번에 등록
             </button>
           </div>
         </div>
@@ -368,7 +368,7 @@ function PasteModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: ()
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto m-4">
         <div className="flex items-center justify-between p-5 border-b border-gray-200">
-          <h2 className="text-lg font-semibold">엑셀 붙여넣기 등록</h2>
+          <h2 className="text-lg font-semibold">엑셀 붙여넣기로 한꺼번에 등록</h2>
           <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
             <X className="w-5 h-5" />
           </button>
