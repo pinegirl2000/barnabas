@@ -11,7 +11,9 @@ assignmentRouter.use(authenticate);
 assignmentRouter.get('/', async (req: Request, res: Response) => {
   try {
     const week = query(req, 'week');
-    const weekStart = week ? new Date(week + 'T00:00:00.000Z') : getMonday(new Date());
+    const weekStart = week
+      ? new Date(week.includes('T') ? week : week + 'T00:00:00.000Z')
+      : getMonday(new Date());
 
     // Range query to handle timezone differences (±18 hours)
     const rangeStart = new Date(weekStart.getTime() - 18 * 60 * 60 * 1000);
