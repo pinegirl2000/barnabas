@@ -11,13 +11,17 @@ assignmentRouter.use(authenticate);
 assignmentRouter.get('/', async (req: Request, res: Response) => {
   try {
     const week = query(req, 'week');
-    const weekStart = week ? new Date(week) : getMonday(new Date());
+    const weekStart = week ? new Date(week + 'T00:00:00.000Z') : getMonday(new Date());
+
+    // Range query to handle timezone differences (±18 hours)
+    const rangeStart = new Date(weekStart.getTime() - 18 * 60 * 60 * 1000);
+    const rangeEnd = new Date(weekStart.getTime() + 18 * 60 * 60 * 1000);
 
     const tables = await prisma.tableConfig.findMany({
       orderBy: { tableNumber: 'asc' },
       include: {
         assignments: {
-          where: { weekStart },
+          where: { weekStart: { gte: rangeStart, lt: rangeEnd } },
           include: {
             family: { include: { members: true, sessions: { orderBy: { sessionNumber: 'asc' }, include: { volunteer: true } } } },
             volunteer: true,
@@ -39,7 +43,9 @@ assignmentRouter.post(
   async (req: Request, res: Response) => {
     try {
       const { week } = req.body;
-      const weekStart = week ? new Date(week) : getMonday(new Date());
+      const weekStart = week
+        ? new Date(week.includes('T') ? week : week + 'T00:00:00.000Z')
+        : getMonday(new Date());
       const result = await autoAssign(weekStart);
       res.json(result);
     } catch (err) {

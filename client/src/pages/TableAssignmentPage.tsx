@@ -15,10 +15,12 @@ export default function TableAssignmentPage() {
   const [warnings, setWarnings] = useState<string[]>([]);
   const [serviceFilter, setServiceFilter] = useState<'FIRST' | 'SECOND'>('SECOND');
 
+  const weekDateStr = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+
   const fetchAssignments = async () => {
     setLoading(true);
     try {
-      const result = await api.getAssignments(weekStart.toISOString());
+      const result = await api.getAssignments(weekDateStr);
       setData(result);
     } catch (err) {
       console.error(err);
@@ -31,7 +33,7 @@ export default function TableAssignmentPage() {
 
   const handleAutoAssign = async () => {
     try {
-      const result = await api.autoAssign(weekStart.toISOString());
+      const result = await api.autoAssign(weekDateStr);
       setWarnings(result.warnings || []);
       await fetchAssignments();
     } catch (err: any) {

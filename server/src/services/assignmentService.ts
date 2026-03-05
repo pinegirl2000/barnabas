@@ -96,9 +96,14 @@ export async function autoAssign(weekStart: Date): Promise<AutoAssignResult> {
   const warnings: string[] = [];
   const targetSunday = toLocaleDateStr(weekStart);
 
+  // Range query to handle timezone differences
+  const rangeStart = new Date(weekStart.getTime() - 18 * 60 * 60 * 1000);
+  const rangeEnd = new Date(weekStart.getTime() + 18 * 60 * 60 * 1000);
+  const weekRange = { gte: rangeStart, lt: rangeEnd };
+
   // 기존 배정 중 해당 주에 맞지 않는 가족 정리
   const existingAssignments = await prisma.assignment.findMany({
-    where: { weekStart },
+    where: { weekStart: weekRange },
     include: { family: { include: { sessions: { orderBy: { sessionNumber: 'asc' } } } } },
   });
   const toDelete: string[] = [];
@@ -118,7 +123,7 @@ export async function autoAssign(weekStart: Date): Promise<AutoAssignResult> {
     orderBy: { tableNumber: 'asc' },
     include: {
       assignments: {
-        where: { weekStart },
+        where: { weekStart: weekRange },
         include: { family: { include: { members: true, sessions: { orderBy: { sessionNumber: 'asc' } } } } },
       },
     },
@@ -221,7 +226,7 @@ export async function autoAssign(weekStart: Date): Promise<AutoAssignResult> {
   // 담임목사 면담 카운트
   let seniorPastorCount = 0;
   const existingPastorAssignments = await prisma.assignment.findMany({
-    where: { weekStart },
+    where: { weekStart: weekRange },
     include: { pastor: true },
   });
   seniorPastorCount = existingPastorAssignments.filter(
