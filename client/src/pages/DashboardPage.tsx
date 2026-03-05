@@ -150,9 +150,85 @@ export default function DashboardPage() {
               }
 
               return (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="hidden sm:table-header-group">
+                <div>
+                  {/* 모바일 카드 뷰 */}
+                  <div className="sm:hidden space-y-2">
+                    {groups.map((group) => {
+                      const now = new Date();
+                      let groupAdults = 0;
+                      let groupChildren = 0;
+                      for (const gi of group.items) {
+                        for (const m of (gi.family.members || [])) {
+                          if (!m.attending) continue;
+                          if (m.birthDate) {
+                            const [y, mo, d] = m.birthDate.split(/[-\/]/).map(Number);
+                            const birth = new Date(y, mo - 1, d);
+                            const age = now.getFullYear() - birth.getFullYear() - (now < new Date(now.getFullYear(), birth.getMonth(), birth.getDate()) ? 1 : 0);
+                            age <= 6 ? groupChildren++ : groupAdults++;
+                          } else {
+                            groupAdults++;
+                          }
+                        }
+                      }
+                      return (
+                        <div key={`mobile-${group.svc}`}>
+                          <div className="flex items-center gap-2 py-2">
+                            <span className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-medium ${
+                              group.svc === 'FIRST' ? 'bg-blue-500 text-white' :
+                              group.svc === 'SECOND' ? 'bg-blue-600 text-white' :
+                              'bg-blue-700 text-white'
+                            }`}>
+                              {serviceLabels[group.svc]} ({group.items.length}가정)
+                            </span>
+                            <span className="text-[11px] text-gray-400">성인 {groupAdults}명 · 유아 {groupChildren}명</span>
+                          </div>
+                          {group.items.map((s: any, gIdx: number) => {
+                            const isMySchedule = user?.volunteerId && s.volunteerId === user.volunteerId;
+                            const attendingNames = s.family.members?.filter((m: any) => m.attending).map((m: any) => m.name).slice(0, 2).join(', ') || '';
+                            const attendingCount = s.family.members?.filter((m: any) => m.attending).length || 0;
+                            return (
+                              <div key={s.sessionId} className={`p-3 border-b border-slate-100 ${isMySchedule ? 'bg-yellow-50 ring-1 ring-inset ring-yellow-300 rounded-lg mb-1' : ''}`}>
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold shrink-0">{gIdx + 1}</span>
+                                  {isUserOnly ? (
+                                    <span className="text-slate-800 font-medium">
+                                      {attendingNames}
+                                      <span className="text-xs text-gray-400 font-normal ml-1">({attendingCount}명)</span>
+                                    </span>
+                                  ) : (
+                                    <Link to={`/families/${s.family.id}`} className="text-slate-800 hover:text-primary-600 hover:underline font-medium">
+                                      {attendingNames}
+                                      <span className="text-xs text-gray-400 font-normal ml-1">({attendingCount}명)</span>
+                                    </Link>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1 flex-wrap mt-1 ml-7">
+                                  <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${
+                                    s.sessionType === 'EDUCATION' ? 'bg-blue-50 text-blue-600' :
+                                    s.sessionType === 'PASTOR_VISIT' ? 'bg-purple-50 text-purple-600' :
+                                    'bg-amber-50 text-amber-600'
+                                  }`}>
+                                    {`${s.sessionNumber}주차`}{(s.pastorVisit || s.needsPastorVisit) && ' · 담임목사님 면담'}
+                                  </span>
+                                  {s.isGraduating && (
+                                    <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-pink-100 text-pink-600">수료예정</span>
+                                  )}
+                                  <span className={`text-xs ${isMySchedule ? 'text-yellow-700 font-bold' : 'text-slate-500'}`}>
+                                    · {volunteerDisplayName(s.volunteer) || '미배정'}
+                                    {isMySchedule && <span className="ml-1 text-[10px] px-1 py-0.5 rounded bg-yellow-200 text-yellow-800">나</span>}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* PC 테이블 뷰 */}
+                  <table className="hidden sm:table w-full text-sm">
+                    <thead>
                       <tr className="bg-slate-50 border-b border-slate-200">
                         <th className="text-left py-2.5 px-3 text-xs text-slate-500 font-medium">새가족</th>
                         <th className="text-left py-2.5 px-3 text-xs text-slate-500 font-medium">예정단계</th>
@@ -196,25 +272,27 @@ export default function DashboardPage() {
                           </tr>,
                           ...group.items.map((s: any, gIdx: number) => {
                             const isMySchedule = user?.volunteerId && s.volunteerId === user.volunteerId;
+                            const attendingNames = s.family.members?.filter((m: any) => m.attending).map((m: any) => m.name).slice(0, 2).join(', ') || '';
+                            const attendingCount = s.family.members?.filter((m: any) => m.attending).length || 0;
                             return (
-                            <tr key={s.sessionId} className={`border-b border-slate-100 ${isMySchedule ? 'bg-yellow-50 ring-1 ring-inset ring-yellow-300' : 'hover:bg-slate-50/50'} sm:table-row flex flex-col sm:flex-none p-3 sm:p-0`}>
-                              <td className="py-1 sm:py-2.5 px-0 sm:px-3">
+                            <tr key={s.sessionId} className={`border-b border-slate-100 ${isMySchedule ? 'bg-yellow-50 ring-1 ring-inset ring-yellow-300' : 'hover:bg-slate-50/50'}`}>
+                              <td className="py-2.5 px-3">
                                 <div className="flex items-center gap-2">
                                   <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold shrink-0">{gIdx + 1}</span>
                                   {isUserOnly ? (
                                     <span className="text-slate-800 font-medium">
-                                      {s.family.members?.map((m: any) => m.name).slice(0, 2).join(', ')}
-                                      <span className="text-xs text-gray-400 font-normal ml-1">({s.family.members?.filter((m: any) => m.attending).length || 0}명)</span>
+                                      {attendingNames}
+                                      <span className="text-xs text-gray-400 font-normal ml-1">({attendingCount}명)</span>
                                     </span>
                                   ) : (
                                     <Link to={`/families/${s.family.id}`} className="text-slate-800 hover:text-primary-600 hover:underline font-medium">
-                                      {s.family.members?.map((m: any) => m.name).slice(0, 2).join(', ')}
-                                      <span className="text-xs text-gray-400 font-normal ml-1">({s.family.members?.filter((m: any) => m.attending).length || 0}명)</span>
+                                      {attendingNames}
+                                      <span className="text-xs text-gray-400 font-normal ml-1">({attendingCount}명)</span>
                                     </Link>
                                   )}
                                 </div>
                               </td>
-                              <td className="py-1 sm:py-2.5 px-0 sm:px-3">
+                              <td className="py-2.5 px-3">
                                 <div className="flex items-center gap-1 flex-wrap">
                                   <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${
                                     s.sessionType === 'EDUCATION' ? 'bg-blue-50 text-blue-600' :
@@ -226,13 +304,9 @@ export default function DashboardPage() {
                                   {s.isGraduating && (
                                     <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-pink-100 text-pink-600">수료예정</span>
                                   )}
-                                  <span className={`sm:hidden text-xs ${isMySchedule ? 'text-yellow-700 font-bold' : 'text-slate-500'}`}>
-                                    · {volunteerDisplayName(s.volunteer) || '미배정'}
-                                    {isMySchedule && <span className="ml-1 text-[10px] px-1 py-0.5 rounded bg-yellow-200 text-yellow-800">나</span>}
-                                  </span>
                                 </div>
                               </td>
-                              <td className="py-1 sm:py-2.5 px-0 sm:px-3 hidden md:table-cell">
+                              <td className="py-2.5 px-3 hidden md:table-cell">
                                 <div className="flex items-center gap-2">
                                   <div className="flex gap-0.5 flex-1 min-w-[50px]">
                                     {Array.from({ length: s.totalSessions }, (_, i) => (
@@ -249,12 +323,12 @@ export default function DashboardPage() {
                                   <span className="text-xs text-slate-400 whitespace-nowrap">{s.completedCount}/{s.totalSessions}</span>
                                 </div>
                               </td>
-                              <td className={`py-1 sm:py-2.5 px-0 sm:px-3 whitespace-nowrap hidden sm:table-cell ${isMySchedule ? 'text-yellow-700 font-bold' : 'text-slate-600'}`}>
+                              <td className={`py-2.5 px-3 whitespace-nowrap ${isMySchedule ? 'text-yellow-700 font-bold' : 'text-slate-600'}`}>
                                 {volunteerDisplayName(s.volunteer) || <span className="text-rose-400">미배정</span>}
                                 {isMySchedule && <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-yellow-200 text-yellow-800">나</span>}
                               </td>
                               {!isUserOnly && (
-                                <td className="py-1 sm:py-2.5 px-0 sm:px-3 sm:text-center hidden sm:table-cell">
+                                <td className="py-2.5 px-3 text-center">
                                   <Link
                                     to={`/families/${s.family.id}?editSession=${s.sessionId}`}
                                     className="text-xs px-2.5 py-1 text-slate-500 border border-slate-200 rounded-md hover:bg-slate-50 hover:text-slate-700 whitespace-nowrap transition-colors"
@@ -321,7 +395,7 @@ export default function DashboardPage() {
                       <li key={f.id}>
                         <Link to={`/families/${f.id}`} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
                           <span className="text-sm font-medium">
-                            {f.members.map((m: any) => m.name).slice(0, 2).join(', ')}
+                            {f.members.filter((m: any) => m.attending).map((m: any) => m.name).slice(0, 2).join(', ')}
                           </span>
                           <span className="text-xs text-gray-500">{formatDate(f.registeredAt)}</span>
                         </Link>
@@ -353,7 +427,7 @@ export default function DashboardPage() {
                         <tr key={f.id} className="border-b border-gray-50 hover:bg-gray-50">
                           <td className="py-2 px-3">
                             <Link to={`/families/${f.id}`} className="text-primary-600 hover:underline font-medium">
-                              {f.members.map((m: any) => m.name).slice(0, 2).join(', ')}
+                              {f.members.filter((m: any) => m.attending).map((m: any) => m.name).slice(0, 2).join(', ')}
                             </Link>
                           </td>
                           <td className="py-2 px-3 text-gray-500">{formatDate(f.firstSessionDate || f.registeredAt)}</td>
