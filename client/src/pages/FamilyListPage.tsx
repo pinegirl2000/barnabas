@@ -65,17 +65,17 @@ export default function FamilyListPage() {
         }
       />
 
-      <div className="p-6">
+      <div className="p-3 sm:p-6">
         {/* 필터 */}
         <div className="flex items-center gap-2 mb-4">
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
             <input
               type="text"
               placeholder="이름 검색"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-sm w-40 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-sm w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>
           <select
@@ -101,27 +101,37 @@ export default function FamilyListPage() {
             <p>등록된 새가족이 없습니다</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">가족이름</th>
-                  <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">다음 단계</th>
-                  <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">등록일</th>
-                  <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">유형</th>
-                  <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">예배</th>
-                  <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">진행</th>
-                  <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">상태</th>
-                  <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">바나바</th>
-                </tr>
-              </thead>
-              <tbody>
-                {families.map((family, idx) => (
-                  <FamilyRow key={family.id} family={family} index={idx + 1} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* 모바일: 카드 뷰 */}
+            <div className="sm:hidden space-y-3">
+              {families.map((family, idx) => (
+                <FamilyCard key={family.id} family={family} index={idx + 1} />
+              ))}
+            </div>
+
+            {/* PC: 테이블 뷰 */}
+            <div className="hidden sm:block bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">가족이름</th>
+                    <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">다음 단계</th>
+                    <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">등록일</th>
+                    <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">유형</th>
+                    <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">예배</th>
+                    <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">진행</th>
+                    <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">상태</th>
+                    <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">바나바</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {families.map((family, idx) => (
+                    <FamilyRow key={family.id} family={family} index={idx + 1} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -136,7 +146,7 @@ function Users(props: any) {
   );
 }
 
-function FamilyRow({ family, index }: { family: any; index: number }) {
+function useFamilyData(family: any) {
   const members = family.members || [];
   const attending = members.filter((m: any) => m.attending);
   const displayMembers = attending.length > 0 ? attending : members;
@@ -148,13 +158,9 @@ function FamilyRow({ family, index }: { family: any; index: number }) {
   const volunteer = family.sessions?.find((s: any) => s.volunteerId)?.volunteer;
   const firstSession = family.sessions?.find((s: any) => s.sessionNumber === 1);
   const registrationDate = firstSession?.date ? formatDate(firstSession.date) : formatDate(family.registeredAt);
-
-  // 담임목사님 면담 필요 여부: 완료된 세션 중 pastorVisit=true인 것이 없으면 면담 필요
   const pastorVisitDone = family.sessions?.some((s: any) => s.completed && s.pastorVisit);
-  // 아직 미완료 세션이 남아있고, 면담이 아직 안 됐으면 아이콘 표시
   const needsPastorVisit = !pastorVisitDone && completedCount > 0 && completedCount < totalSessions;
 
-  // 다음 예정 세션 찾기
   const sessions = family.sessions || [];
   const nextSession = sessions.find((s: any) => {
     if (s.completed) return false;
@@ -166,7 +172,6 @@ function FamilyRow({ family, index }: { family: any; index: number }) {
   const nextSessionDate = (() => {
     if (!nextSession) return '';
     if (nextSession.date) return formatDate(nextSession.date);
-    // 이전 완료 세션 날짜 기반으로 예정일 추정
     let baseDate: Date | null = null;
     let weeksToAdd = 0;
     const nextIdx = sessions.indexOf(nextSession);
@@ -187,6 +192,85 @@ function FamilyRow({ family, index }: { family: any; index: number }) {
     return '';
   })();
 
+  const isPhone = nextSessionNumber ? (
+    family.type === 'RE_REGISTER'
+      ? [3, 4].includes(nextSessionNumber)
+      : [7, 8].includes(nextSessionNumber)
+  ) : false;
+  const isOnHold = family.status === 'ON_HOLD';
+
+  return { memberNames, completedCount, totalSessions, volunteer, registrationDate, needsPastorVisit, nextSessionNumber, nextSessionDate, isPhone, isOnHold };
+}
+
+function FamilyCard({ family, index }: { family: any; index: number }) {
+  const { memberNames, completedCount, totalSessions, volunteer, nextSessionNumber, nextSessionDate, isPhone, isOnHold, needsPastorVisit } = useFamilyData(family);
+
+  const badgeColor = isOnHold
+    ? 'bg-red-100 text-red-600'
+    : isPhone
+      ? 'bg-amber-100 text-amber-700'
+      : 'bg-blue-100 text-blue-600';
+
+  return (
+    <div
+      className="bg-white rounded-xl border border-gray-200 p-3 cursor-pointer active:bg-gray-50"
+      onClick={() => window.location.href = `/families/${family.id}`}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary-100 text-primary-600 text-[10px] font-bold shrink-0">{index}</span>
+          <span className="text-sm font-medium text-primary-600 truncate">{memberNames}</span>
+          <span className={`px-1.5 py-0.5 rounded-full text-[10px] shrink-0 ${family.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
+            {getFamilyTypeLabel(family.type)}
+          </span>
+        </div>
+        <span className={`px-2 py-0.5 rounded-full text-[10px] shrink-0 ${getStatusColor(family.status)}`}>
+          {getStatusLabel(family.status)}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 mb-2">
+        <div className="flex gap-0.5 flex-1 min-w-[60px]">
+          {Array.from({ length: totalSessions }, (_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 flex-1 rounded-sm ${
+                i >= totalSessions - 2
+                  ? (i < completedCount ? 'bg-amber-400' : 'bg-amber-100')
+                  : (i < completedCount ? 'bg-emerald-400' : 'bg-gray-100')
+              }`}
+            />
+          ))}
+        </div>
+        <span className="text-[10px] text-gray-500 shrink-0">{completedCount}/{totalSessions}</span>
+        {needsPastorVisit && (
+          <span className="px-1 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-700 shrink-0">면담</span>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between text-[11px] text-gray-500">
+        <div className="flex items-center gap-2">
+          {nextSessionNumber ? (
+            <div className="flex items-center gap-1">
+              {nextSessionDate && <span>{nextSessionDate}</span>}
+              <span className={`px-1 py-0.5 rounded text-[10px] font-bold ${badgeColor}`}>
+                {isPhone ? `${nextSessionNumber}회차-전화` : `${nextSessionNumber}회차`}
+              </span>
+            </div>
+          ) : (
+            <span className="text-gray-300">-</span>
+          )}
+        </div>
+        <span>바나바: {volunteerDisplayName(volunteer) || '미배정'}</span>
+      </div>
+    </div>
+  );
+}
+
+function FamilyRow({ family, index }: { family: any; index: number }) {
+  const d = useFamilyData(family);
+  const { memberNames, completedCount, totalSessions, volunteer, registrationDate, needsPastorVisit, nextSessionNumber, nextSessionDate } = d;
+
   return (
     <tr className="border-b border-gray-50 hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/families/${family.id}`}>
       <td className="py-2.5 px-4">
@@ -197,16 +281,12 @@ function FamilyRow({ family, index }: { family: any; index: number }) {
       </td>
       <td className="py-2.5 px-4">
         {nextSessionNumber ? (() => {
-          const isPhone = family.type === 'RE_REGISTER'
-            ? [3, 4].includes(nextSessionNumber)
-            : [7, 8].includes(nextSessionNumber);
-          const isOnHold = family.status === 'ON_HOLD';
-          const badgeColor = isOnHold
+          const badgeColor = d.isOnHold
             ? 'bg-red-100 text-red-600'
-            : isPhone
+            : d.isPhone
               ? 'bg-amber-100 text-amber-700'
               : 'bg-blue-100 text-blue-600';
-          const label = isPhone
+          const label = d.isPhone
             ? `${nextSessionNumber}회차-전화심방`
             : `${nextSessionNumber}회차`;
           return (

@@ -16,7 +16,7 @@ export default function VolunteerPage() {
   const fetchVolunteers = async () => {
     setLoading(true);
     const data = await api.getVolunteers();
-    setVolunteers(data);
+    setVolunteers(data.filter((v: any) => v.isInternal !== false));
     setLoading(false);
   };
 
@@ -120,15 +120,6 @@ export default function VolunteerPage() {
                 onChange={e => setForm({ ...form, email: e.target.value })}
                 className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
               />
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={form.isInternal}
-                  onChange={e => setForm({ ...form, isInternal: e.target.checked })}
-                  className="rounded"
-                />
-                내부 바나바
-              </label>
               <button
                 type="submit"
                 className="flex items-center justify-center gap-2 bg-primary-600 text-white rounded-lg px-4 py-2 text-sm hover:bg-primary-700"
@@ -146,49 +137,39 @@ export default function VolunteerPage() {
             <div className="animate-spin w-6 h-6 border-4 border-primary-500 border-t-transparent rounded-full" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {volunteers.map(v => (
-              <div key={v.id} className="bg-white rounded-xl border border-gray-200 p-5">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-pink-500" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{v.name}</h4>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          v.isInternal ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {v.isInternal ? '내부' : '외부'}
-                        </span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-                          {getServiceTimeLabel(v.availability)}
-                        </span>
-                        {v.users?.length > 0 && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">카톡연결됨</span>
-                        )}
-                        {!v.isActive && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">비활성</span>
-                        )}
-                      </div>
-                    </div>
+              <div key={v.id} className="bg-white rounded-lg border border-gray-200 px-3 py-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Heart className="w-4 h-4 text-pink-400 shrink-0" />
+                    <span className="font-medium text-sm text-gray-900 truncate">{v.name}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 shrink-0">
+                      {getServiceTimeLabel(v.availability)}
+                    </span>
+                    {v.users?.length > 0 && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-yellow-100 text-yellow-700 shrink-0">카톡</span>
+                    )}
+                    {!v.isActive && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 shrink-0">비활성</span>
+                    )}
                   </div>
                   {isFamilyTeam && (
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => handleEdit(v)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded">
-                        <Edit2 className="w-4 h-4" />
+                    <div className="flex items-center gap-0.5 shrink-0">
+                      <button onClick={() => handleEdit(v)} className="p-1 text-gray-400 hover:text-blue-600 rounded">
+                        <Edit2 className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => handleDelete(v.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded">
-                        <Trash2 className="w-4 h-4" />
+                      <button onClick={() => handleDelete(v.id)} className="p-1 text-gray-400 hover:text-red-600 rounded">
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   )}
                 </div>
-                <div className="mt-3 text-sm text-gray-500 space-y-1">
-                  {v.phone && <p>Tel: {v.phone}</p>}
-                  {v.email && <p>Email: {v.email}</p>}
-                </div>
+                {(v.phone || v.email) && (
+                  <div className="mt-1 text-xs text-gray-400 pl-6">
+                    {[v.phone, v.email].filter(Boolean).join(' · ')}
+                  </div>
+                )}
               </div>
             ))}
           </div>

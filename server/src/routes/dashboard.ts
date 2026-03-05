@@ -62,19 +62,16 @@ dashboardRouter.get('/', async (_req: Request, res: Response) => {
       where: { weekStart: monday },
     });
 
-    // 수료 대상 (6번째 세션 완료자)
+    // 수료 대상 (신규: 6회차 완료, 재등록: 2회차 완료)
     const graduationCandidates = await prisma.family.findMany({
       where: {
         status: 'ACTIVE',
-        type: 'NEW',
-        sessions: {
-          some: {
-            sessionNumber: 6,
-            completed: true,
-          },
-        },
+        OR: [
+          { type: 'NEW', sessions: { some: { sessionNumber: 6, completed: true } } },
+          { type: 'RE_REGISTER', sessions: { some: { sessionNumber: 2, completed: true } } },
+        ],
       },
-      include: { members: true },
+      include: { members: true, sessions: { orderBy: { sessionNumber: 'asc' } } },
     });
 
     // 바나바 변경 필요 가족 (변경요청 또는 미배정)
