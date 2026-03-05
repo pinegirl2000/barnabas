@@ -410,7 +410,10 @@ export default function DashboardPage() {
 
             {/* 최근 등록 */}
             <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h3 className="font-semibold text-gray-900 mb-4">최근 등록 새가족</h3>
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-emerald-500" />
+                최근 등록 새가족
+              </h3>
               {data?.recentFamilies?.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
