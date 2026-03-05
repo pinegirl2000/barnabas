@@ -277,7 +277,93 @@ export default function FamilyFormPage() {
                 </button>
               )}
             </div>
-            <div className="overflow-x-auto">
+            {/* 모바일 카드 뷰 */}
+            <div className="sm:hidden space-y-3">
+              {members.map((member, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-gray-400">#{index + 1}</span>
+                    {!isSingle && members.length > 1 && (
+                      <button type="button" onClick={() => removeMember(index)} className="text-red-400 hover:text-red-600">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                    <div className={isSingle ? 'col-span-2' : ''}>
+                      <label className="block text-[10px] text-gray-400 mb-0.5">이름</label>
+                      <input type="text" placeholder={index === 0 ? '이름 *' : '이름'} value={member.name} onChange={e => updateMember(index, 'name', e.target.value)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm" required={index === 0} />
+                    </div>
+                    {!isSingle && (
+                      <div>
+                        <label className="block text-[10px] text-gray-400 mb-0.5">관계</label>
+                        <select value={member.relation} onChange={e => updateMember(index, 'relation', e.target.value)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm">
+                          <option value="">선택</option>
+                          <option value="남편">남편</option><option value="아내">아내</option><option value="딸">딸</option><option value="아들">아들</option>
+                          <option value="친정어머님">친정어머님</option><option value="친정아버님">친정아버님</option><option value="시어머님">시어머님</option><option value="시아버님">시아버님</option>
+                          <option value="기타-남자">기타-남자</option><option value="기타-여자">기타-여자</option>
+                        </select>
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-0.5">생년월일</label>
+                      <input type="text" placeholder="YYYY/MM/DD" value={member.birthDate} onChange={e => { const raw = e.target.value.replace(/[^0-9/]/g, ''); let v = raw.replace(/\//g, ''); if (v.length > 4) v = v.slice(0, 4) + '/' + v.slice(4); if (v.length > 7) v = v.slice(0, 7) + '/' + v.slice(7); if (v.length > 10) v = v.slice(0, 10); updateMember(index, 'birthDate', v); }} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-0.5">연락처</label>
+                      <input type="text" placeholder="010-0000-0000" value={member.phone} onChange={e => updateMember(index, 'phone', e.target.value)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-0.5">직분</label>
+                      <select value={member.position} onChange={e => updateMember(index, 'position', e.target.value)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm">
+                        <option value="">선택</option><option value="새신자">새신자</option><option value="없음">없음</option>
+                        <option value="서리집사">서리집사</option><option value="안수집사">안수집사</option><option value="권사">권사</option><option value="장로">장로</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-0.5">세례</label>
+                      <div className="flex items-center gap-3 h-[30px]">
+                        <label className="flex items-center gap-1 cursor-pointer"><input type="radio" name={`m-baptized-${index}`} checked={member.baptized} onChange={() => updateMember(index, 'baptized', true)} className="w-3.5 h-3.5" /><span className="text-xs">Y</span></label>
+                        <label className="flex items-center gap-1 cursor-pointer"><input type="radio" name={`m-baptized-${index}`} checked={!member.baptized} onChange={() => updateMember(index, 'baptized', false)} className="w-3.5 h-3.5" /><span className="text-xs">N</span></label>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-0.5">세례연도</label>
+                      <select value={member.baptismYear} onChange={e => updateMember(index, 'baptismYear', e.target.value)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm" disabled={!member.baptized}>
+                        <option value="">선택</option>
+                        {Array.from({ length: 101 }, (_, i) => new Date().getFullYear() - i).map(y => <option key={y} value={String(y)}>{y}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-0.5">이전교회</label>
+                      <input type="text" placeholder="이전교회" value={member.previousChurch} onChange={e => updateMember(index, 'previousChurch', e.target.value)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 mb-0.5">싱가폴거주</label>
+                      <div className="flex items-center gap-3 h-[30px]">
+                        <label className="flex items-center gap-1 cursor-pointer"><input type="radio" name={`m-sg-${index}`} checked={member.livingInSG} onChange={() => updateMember(index, 'livingInSG', true)} className="w-3.5 h-3.5" /><span className="text-xs">Y</span></label>
+                        <label className="flex items-center gap-1 cursor-pointer"><input type="radio" name={`m-sg-${index}`} checked={!member.livingInSG} onChange={() => updateMember(index, 'livingInSG', false)} className="w-3.5 h-3.5" /><span className="text-xs">N</span></label>
+                      </div>
+                    </div>
+                    {!isSingle && (
+                      <div>
+                        <label className="block text-[10px] text-gray-400 mb-0.5">교회출석</label>
+                        <div className="flex items-center gap-3 h-[30px]">
+                          <label className="flex items-center gap-1 cursor-pointer"><input type="radio" name={`m-att-${index}`} checked={member.attending} onChange={() => updateMember(index, 'attending', true)} className="w-3.5 h-3.5" /><span className="text-xs">Y</span></label>
+                          <label className="flex items-center gap-1 cursor-pointer"><input type="radio" name={`m-att-${index}`} checked={!member.attending} onChange={() => updateMember(index, 'attending', false)} className="w-3.5 h-3.5" /><span className="text-xs">N</span></label>
+                        </div>
+                      </div>
+                    )}
+                    <div className={!isSingle ? '' : 'col-span-2'}>
+                      <label className="block text-[10px] text-gray-400 mb-0.5">메모</label>
+                      <input type="text" placeholder="메모" value={member.memo} onChange={e => updateMember(index, 'memo', e.target.value)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* PC 테이블 뷰 */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200">
