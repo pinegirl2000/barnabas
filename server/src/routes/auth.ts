@@ -41,11 +41,16 @@ authRouter.get('/kakao/callback', async (req: Request, res: Response) => {
     const token = signToken({ userId: user.id, role: user.role });
 
     // 프론트엔드로 리다이렉트 (토큰을 쿼리 파라미터로 전달)
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-    res.redirect(`${clientUrl}/auth/callback?token=${token}`);
+    if (process.env.NODE_ENV === 'production') {
+      res.redirect(`/auth/callback?token=${token}`);
+    } else {
+      const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+      res.redirect(`${clientUrl}/auth/callback?token=${token}`);
+    }
   } catch (err) {
     console.error('Kakao auth error:', err);
-    res.status(500).json({ error: '카카오 인증 실패' });
+    const message = err instanceof Error ? err.message : '카카오 인증 실패';
+    res.status(500).json({ error: '카카오 인증 실패', detail: message });
   }
 });
 
