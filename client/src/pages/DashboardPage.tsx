@@ -5,6 +5,7 @@ import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { formatDate, getStatusColor, getStatusLabel } from '../lib/utils';
+import { volunteerDisplayName } from '../lib/volunteerDisplay';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -127,7 +128,8 @@ export default function DashboardPage() {
               const sorted = [...data.weeklyVolunteerSchedule].sort((a: any, b: any) => {
                 const ai = serviceOrder.indexOf(a.family.serviceTime || 'SECOND');
                 const bi = serviceOrder.indexOf(b.family.serviceTime || 'SECOND');
-                return ai - bi;
+                if (ai !== bi) return ai - bi;
+                return (a.sessionNumber || 0) - (b.sessionNumber || 0);
               });
 
               // 그룹별로 분리
@@ -140,6 +142,9 @@ export default function DashboardPage() {
                   groups.push(currentGroup);
                 }
                 currentGroup.items.push(s);
+              }
+              for (const g of groups) {
+                g.items.sort((a: any, b: any) => (a.sessionNumber || 0) - (b.sessionNumber || 0));
               }
 
               const colCount = 5;
@@ -183,7 +188,7 @@ export default function DashboardPage() {
                                   group.svc === 'SECOND' ? 'bg-blue-600 text-white' :
                                   'bg-blue-700 text-white'
                                 }`}>
-                                  {serviceLabels[group.svc]} ({group.items.length})
+                                  {serviceLabels[group.svc]} ({group.items.length}가정)
                                 </span>
                                 <span className="text-[11px] text-gray-400">성인 {groupAdults}명 · 유아 {groupChildren}명</span>
                               </div>
@@ -241,7 +246,7 @@ export default function DashboardPage() {
                                 </div>
                               </td>
                               <td className={`py-2.5 px-3 whitespace-nowrap ${isMySchedule ? 'text-yellow-700 font-bold' : 'text-slate-600'}`}>
-                                {s.volunteer?.name || <span className="text-rose-400">미배정</span>}
+                                {volunteerDisplayName(s.volunteer) || <span className="text-rose-400">미배정</span>}
                                 {isMySchedule && <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-yellow-200 text-yellow-800">나</span>}
                               </td>
                               {!isUserOnly && (

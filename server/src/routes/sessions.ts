@@ -66,6 +66,27 @@ sessionRouter.put(
         data: { volunteerId: volunteerId || null, needsNewVolunteer: false },
         include: { volunteer: true, pastor: true },
       });
+
+      // 미완료 이후 회차 중 바나바가 없는 세션도 함께 업데이트
+      // 단, 신규는 7·8회차(목사님 심방), 재등록은 3·4회차(목사님 심방) 제외
+      if (volunteerId && !session.completed) {
+        const family = await prisma.family.findUnique({
+          where: { id: session.familyId },
+          select: { type: true },
+        });
+        const excludeNumbers = family?.type === 'RE_REGISTER' ? [3, 4] : [7, 8];
+
+        await prisma.sessionRecord.updateMany({
+          where: {
+            familyId: session.familyId,
+            sessionNumber: { gt: session.sessionNumber, notIn: excludeNumbers },
+            completed: false,
+            volunteerId: null,
+          },
+          data: { volunteerId },
+        });
+      }
+
       res.json(session);
     } catch (err) {
       res.status(500).json({ error: '바나바 변경 실패' });

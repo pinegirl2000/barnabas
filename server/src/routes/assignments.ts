@@ -19,7 +19,7 @@ assignmentRouter.get('/', async (req: Request, res: Response) => {
         assignments: {
           where: { weekStart },
           include: {
-            family: { include: { members: true, sessions: { orderBy: { sessionNumber: 'asc' } } } },
+            family: { include: { members: true, sessions: { orderBy: { sessionNumber: 'asc' }, include: { volunteer: true } } } },
             volunteer: true,
             pastor: true,
           },

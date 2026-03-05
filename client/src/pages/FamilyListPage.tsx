@@ -1,9 +1,40 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, UserPlus } from 'lucide-react';
 import Header from '../components/layout/Header';
 import { useFamilies } from '../hooks/useFamilies';
 import { formatDate, getStatusColor, getStatusLabel, getFamilyTypeLabel, getServiceTimeLabel } from '../lib/utils';
+import { volunteerDisplayName } from '../lib/volunteerDisplay';
+
+function getNextSessionDateRaw(family: any): string {
+  const sessions = family.sessions || [];
+  const nextSession = sessions.find((s: any) => {
+    if (s.completed) return false;
+    if (s.sessionNumber === 1) return true;
+    const prev = sessions.find((p: any) => p.sessionNumber === s.sessionNumber - 1);
+    return prev?.completed;
+  });
+  if (!nextSession) return '9999-12-31';
+  if (nextSession.date) return new Date(nextSession.date).toISOString().split('T')[0];
+  let baseDate: Date | null = null;
+  let weeksToAdd = 0;
+  const nextIdx = sessions.indexOf(nextSession);
+  for (let i = nextIdx - 1; i >= 0; i--) {
+    if (sessions[i].date) {
+      baseDate = new Date(sessions[i].date);
+      for (let j = i + 1; j <= nextIdx; j++) {
+        const is4Week = family.type === 'RE_REGISTER' ? sessions[j].sessionNumber >= 3 : sessions[j].sessionNumber >= 7;
+        weeksToAdd += is4Week ? 4 : 1;
+      }
+      break;
+    }
+  }
+  if (baseDate) {
+    const projected = new Date(baseDate.getTime() + weeksToAdd * 7 * 24 * 60 * 60 * 1000);
+    return projected.toISOString().split('T')[0];
+  }
+  return '9999-12-31';
+}
 
 export default function FamilyListPage() {
   const [search, setSearch] = useState('');
@@ -13,7 +44,11 @@ export default function FamilyListPage() {
   if (search) params.search = search;
   if (statusFilter) params.status = statusFilter;
 
-  const { families, loading } = useFamilies(params);
+  const { families: rawFamilies, loading } = useFamilies(params);
+  const families = useMemo(() =>
+    [...rawFamilies].sort((a, b) => getNextSessionDateRaw(a).localeCompare(getNextSessionDateRaw(b))),
+    [rawFamilies]
+  );
 
   return (
     <div className="flex-1">
@@ -71,7 +106,8 @@ export default function FamilyListPage() {
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">가족이름</th>
-                  <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">1주차 교육일</th>
+                  <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">다음 단계</th>
+                  <th className="text-left py-2.5 px-4 text-xs text-gray-500 font-medium">등록일</th>
                   <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">유형</th>
                   <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">예배</th>
                   <th className="text-center py-2.5 px-4 text-xs text-gray-500 font-medium">진행</th>
@@ -116,6 +152,39 @@ function FamilyRow({ family, index }: { family: any; index: number }) {
   // 아직 미완료 세션이 남아있고, 면담이 아직 안 됐으면 아이콘 표시
   const needsPastorVisit = !pastorVisitDone && completedCount > 0 && completedCount < totalSessions;
 
+  // 다음 예정 세션 찾기
+  const sessions = family.sessions || [];
+  const nextSession = sessions.find((s: any) => {
+    if (s.completed) return false;
+    if (s.sessionNumber === 1) return true;
+    const prev = sessions.find((p: any) => p.sessionNumber === s.sessionNumber - 1);
+    return prev?.completed;
+  });
+  const nextSessionNumber = nextSession?.sessionNumber || null;
+  const nextSessionDate = (() => {
+    if (!nextSession) return '';
+    if (nextSession.date) return formatDate(nextSession.date);
+    // 이전 완료 세션 날짜 기반으로 예정일 추정
+    let baseDate: Date | null = null;
+    let weeksToAdd = 0;
+    const nextIdx = sessions.indexOf(nextSession);
+    for (let i = nextIdx - 1; i >= 0; i--) {
+      if (sessions[i].date) {
+        baseDate = new Date(sessions[i].date);
+        for (let j = i + 1; j <= nextIdx; j++) {
+          const is4Week = family.type === 'RE_REGISTER' ? sessions[j].sessionNumber >= 3 : sessions[j].sessionNumber >= 7;
+          weeksToAdd += is4Week ? 4 : 1;
+        }
+        break;
+      }
+    }
+    if (baseDate) {
+      const projected = new Date(baseDate.getTime() + weeksToAdd * 7 * 24 * 60 * 60 * 1000);
+      return formatDate(projected.toISOString());
+    }
+    return '';
+  })();
+
   return (
     <tr className="border-b border-gray-50 hover:bg-gray-50 cursor-pointer" onClick={() => window.location.href = `/families/${family.id}`}>
       <td className="py-2.5 px-4">
@@ -124,7 +193,31 @@ function FamilyRow({ family, index }: { family: any; index: number }) {
           {memberNames}
         </Link>
       </td>
-      <td className="py-2.5 px-4 text-gray-500">{registrationDate}</td>
+      <td className="py-2.5 px-4">
+        {nextSessionNumber ? (() => {
+          const isPhone = family.type === 'RE_REGISTER'
+            ? [3, 4].includes(nextSessionNumber)
+            : [7, 8].includes(nextSessionNumber);
+          const isOnHold = family.status === 'ON_HOLD';
+          const badgeColor = isOnHold
+            ? 'bg-red-100 text-red-600'
+            : isPhone
+              ? 'bg-amber-100 text-amber-700'
+              : 'bg-blue-100 text-blue-600';
+          const label = isPhone
+            ? `${nextSessionNumber}회차-전화심방`
+            : `${nextSessionNumber}회차`;
+          return (
+            <div className="flex items-center gap-1.5">
+              {nextSessionDate && <span className="text-xs text-gray-600 whitespace-nowrap">{nextSessionDate}</span>}
+              <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ${badgeColor}`}>{label}</span>
+            </div>
+          );
+        })() : (
+          <span className="text-xs text-gray-300">-</span>
+        )}
+      </td>
+      <td className="py-2.5 px-4 text-xs text-gray-600">{registrationDate}</td>
       <td className="py-2.5 px-4 text-center">
         <span className={`px-2 py-0.5 rounded-full text-xs ${family.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
           {getFamilyTypeLabel(family.type)}
@@ -156,7 +249,7 @@ function FamilyRow({ family, index }: { family: any; index: number }) {
           {getStatusLabel(family.status)}
         </span>
       </td>
-      <td className="py-2.5 px-4 text-gray-600">{volunteer?.name || '-'}</td>
+      <td className="py-2.5 px-4 text-gray-600">{volunteerDisplayName(volunteer) || '-'}</td>
     </tr>
   );
 }

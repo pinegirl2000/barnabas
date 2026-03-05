@@ -4,6 +4,7 @@ import { ArrowLeft, Trash2, Save, X, CheckCircle, Circle, Edit2 } from 'lucide-r
 import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { formatDate, getStatusColor, getStatusLabel, getFamilyTypeLabel, getServiceTimeLabel } from '../lib/utils';
+import { volunteerDisplayName } from '../lib/volunteerDisplay';
 import { useAuth } from '../hooks/useAuth';
 
 /** 로컬 날짜를 YYYY-MM-DD 문자열로 변환 (타임존 안전) */
@@ -63,6 +64,7 @@ export default function FamilyDetailPage() {
   const [pendingEdits, setPendingEdits] = useState<Record<string, {
     date?: string; volunteerId?: string; needsNewVolunteer?: boolean;
     serviceTime?: string; memberAttending?: Record<string, boolean>; pastorVisit?: boolean;
+    zoneLeaderName?: string;
   }>>({});
 
   useEffect(() => {
@@ -173,7 +175,11 @@ export default function FamilyDetailPage() {
         }
       }
 
-      if (edit.volunteerId !== undefined) {
+      if (edit.volunteerId === '__ZONE_LEADER__' && edit.zoneLeaderName?.trim()) {
+        // 구역장: 이름으로 봉사자 찾거나 생성 후 배정
+        const vol = await api.findOrCreateVolunteer(edit.zoneLeaderName.trim());
+        tasks.push(api.changeVolunteer(sessionId, vol.id).catch(e => console.error('구역장 배정 실패:', e)));
+      } else if (edit.volunteerId !== undefined && edit.volunteerId !== '__ZONE_LEADER__') {
         tasks.push(api.changeVolunteer(sessionId, edit.volunteerId || null).catch(e => console.error('바나바 변경 실패:', e)));
       }
       if (edit.serviceTime) {
@@ -355,7 +361,7 @@ export default function FamilyDetailPage() {
                   <span className="font-medium text-pink-600">
                     {(() => {
                       const v = family.sessions?.find((s: any) => !s.completed && s.volunteerId)?.volunteer;
-                      return v?.name || '미배정';
+                      return volunteerDisplayName(v) || '미배정';
                     })()}
                   </span>
                 </div>
@@ -526,7 +532,7 @@ export default function FamilyDetailPage() {
                 {!isEditMode && (
                   <div className="px-3 pb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
                     <span>바나바: <span className={session.needsNewVolunteer ? 'text-orange-600 font-medium' : 'text-gray-700 font-medium'}>
-                      {session.needsNewVolunteer ? '변경요청' : (session.volunteer?.name || '미배정')}
+                      {session.needsNewVolunteer ? '변경요청' : (volunteerDisplayName(session.volunteer) || '미배정')}
                     </span></span>
                     <span>{getServiceTimeLabel(family.serviceTime)}</span>
                     <span>참석 {family.members?.filter((m: any) => m.attending).length || 0}명</span>
@@ -555,10 +561,17 @@ export default function FamilyDetailPage() {
                     </div>
 
                     {/* 바나바 */}
+                    {(() => {
+                      const isCurrentZoneLeader = session.volunteer && session.volunteer.isInternal === false;
+                      const defaultValue = session.needsNewVolunteer ? '__CHANGE_REQUEST__' : isCurrentZoneLeader ? '__ZONE_LEADER__' : (session.volunteerId || '');
+                      const selectValue = pending?.volunteerId ?? defaultValue;
+                      const showZoneLeaderInput = selectValue === '__ZONE_LEADER__';
+                      const defaultZoneLeaderName = isCurrentZoneLeader ? session.volunteer.name : '';
+                      return (
                     <div>
                       <label className="text-xs text-gray-500 mb-1 block">바나바</label>
                       <select
-                        value={pending?.volunteerId ?? (session.needsNewVolunteer ? '__CHANGE_REQUEST__' : (session.volunteerId || ''))}
+                        value={selectValue}
                         onChange={e => {
                           const val = e.target.value;
                           if (val === '__CHANGE_REQUEST__') {
@@ -568,6 +581,11 @@ export default function FamilyDetailPage() {
                             setPending(session.id, 'needsNewVolunteer', false);
                             setPending(session.id, 'volunteerId', val);
                           }
+                          if (val === '__ZONE_LEADER__') {
+                            setPending(session.id, 'zoneLeaderName', defaultZoneLeaderName);
+                          } else {
+                            setPending(session.id, 'zoneLeaderName', undefined);
+                          }
                         }}
                         className={`w-full text-sm border rounded-lg px-3 py-2.5 ${(pending?.needsNewVolunteer ?? session.needsNewVolunteer) ? 'border-orange-300 text-orange-600 bg-orange-50' : 'border-gray-200'}`}
                       >
@@ -575,9 +593,21 @@ export default function FamilyDetailPage() {
                         {volunteers.map((v: any) => (
                           <option key={v.id} value={v.id}>{v.name}</option>
                         ))}
+                        <option value="__ZONE_LEADER__">구역장</option>
                         <option value="__CHANGE_REQUEST__">바나바 변경요청</option>
                       </select>
+                      {showZoneLeaderInput && (
+                        <input
+                          type="text"
+                          placeholder="구역장 이름 입력"
+                          value={pending?.zoneLeaderName ?? defaultZoneLeaderName}
+                          onChange={e => setPending(session.id, 'zoneLeaderName', e.target.value)}
+                          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 mt-1.5"
+                        />
+                      )}
                     </div>
+                      );
+                    })()}
 
                     {/* 예배시간 */}
                     <div>
@@ -662,6 +692,30 @@ export default function FamilyDetailPage() {
                         취소
                       </button>
                     </div>
+                    {session.completed && (
+                      <button
+                        onClick={async () => {
+                          if (!confirm('이 회차를 교육예정 상태로 되돌리시겠습니까?')) return;
+                          setSaving(true);
+                          try {
+                            await api.updateSession(session.id, { completed: false });
+                            const updated = await api.getFamily(id!);
+                            setFamily(updated);
+                            setEditingDateSession(null);
+                            setPendingEdits(prev => { const n = { ...prev }; delete n[session.id]; return n; });
+                          } catch (err) {
+                            console.error('완료취소 실패:', err);
+                            alert('완료취소 중 오류가 발생했습니다.');
+                          } finally {
+                            setSaving(false);
+                          }
+                        }}
+                        disabled={saving}
+                        className="w-full py-2.5 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 active:bg-red-200 border border-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        완료취소
+                      </button>
+                    )}
                   </div>
                 )}
 

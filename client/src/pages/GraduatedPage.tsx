@@ -4,6 +4,7 @@ import { GraduationCap, Search } from 'lucide-react';
 import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { formatDate, getFamilyTypeLabel, getServiceTimeLabel } from '../lib/utils';
+import { volunteerDisplayName } from '../lib/volunteerDisplay';
 
 const YEARS = [2026, 2025];
 
@@ -92,7 +93,7 @@ export default function GraduatedPage() {
               </thead>
               <tbody>
                 {filtered.map((f, idx) => {
-                  const volunteerName = f.sessions?.find((s: any) => s.volunteer)?.volunteer?.name || '-';
+                  const volunteerName = volunteerDisplayName(f.sessions?.find((s: any) => s.volunteer)?.volunteer) || '-';
                   const phoneVisits: any[] = f.phoneVisits || [];
 
                   return (

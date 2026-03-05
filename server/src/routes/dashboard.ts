@@ -187,7 +187,8 @@ dashboardRouter.get('/', async (_req: Request, res: Response) => {
           family: familyInfo,
         };
       })
-      .filter(Boolean);
+      .filter(Boolean)
+      .sort((a: any, b: any) => (a.sessionNumber || 0) - (b.sessionNumber || 0));
 
     // 지난주 등록: 1주차 교육 날짜가 지난 주일인 가족
     // 타임존 문제 방지를 위해 DB 범위 필터 없이 JS에서 로컬 날짜 문자열로 비교

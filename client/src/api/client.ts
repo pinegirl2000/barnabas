@@ -45,6 +45,10 @@ export const api = {
     const query = params ? '?' + new URLSearchParams(params).toString() : '';
     return request<any[]>(`/families${query}`);
   },
+  searchFamilies: (params?: Record<string, string>) => {
+    const query = params ? '?' + new URLSearchParams(params).toString() : '';
+    return request<any[]>(`/families/search${query}`);
+  },
   getFamily: (id: string) => request<any>(`/families/${id}`),
   createFamily: (data: any) => request<any>('/families', { method: 'POST', body: JSON.stringify(data) }),
   updateFamily: (id: string, data: any) => request<any>(`/families/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
@@ -67,6 +71,7 @@ export const api = {
   getVolunteerSchedule: () => request<any>('/volunteers/schedule'),
   getVolunteer: (id: string) => request<any>(`/volunteers/${id}`),
   createVolunteer: (data: any) => request<any>('/volunteers', { method: 'POST', body: JSON.stringify(data) }),
+  findOrCreateVolunteer: (name: string) => request<any>('/volunteers/find-or-create', { method: 'POST', body: JSON.stringify({ name }) }),
   updateVolunteer: (id: string, data: any) => request<any>(`/volunteers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteVolunteer: (id: string) => request<void>(`/volunteers/${id}`, { method: 'DELETE' }),
 

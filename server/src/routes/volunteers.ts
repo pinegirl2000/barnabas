@@ -116,7 +116,10 @@ volunteerRouter.get('/schedule', async (_req: Request, res: Response) => {
       }
     }
 
-    const grouped = Array.from(volunteerMap.values()).sort((a, b) => a.volunteer.name.localeCompare(b.volunteer.name, 'ko'));
+    const grouped = Array.from(volunteerMap.values())
+      .map(g => ({ ...g, items: g.items.sort((a, b) => a.sessionNumber - b.sessionNumber) }))
+      .sort((a, b) => a.volunteer.name.localeCompare(b.volunteer.name, 'ko'));
+    unassigned.sort((a, b) => a.sessionNumber - b.sessionNumber);
     res.json({ sundayStr, grouped, unassigned });
   } catch (err) {
     console.error(err);
@@ -137,6 +140,23 @@ volunteerRouter.get('/:id', async (req: Request, res: Response) => {
     res.json(volunteer);
   } catch (err) {
     res.status(500).json({ error: '상세 조회 실패' });
+  }
+});
+
+// 이름으로 봉사자 찾거나 없으면 외부 봉사자로 생성
+volunteerRouter.post('/find-or-create', requireRole('ADMIN', 'FAMILY_TEAM', 'VOLUNTEER'), async (req: Request, res: Response) => {
+  try {
+    const { name } = req.body;
+    if (!name?.trim()) { res.status(400).json({ error: '이름을 입력해주세요' }); return; }
+    let volunteer = await prisma.volunteer.findFirst({ where: { name: name.trim() } });
+    if (!volunteer) {
+      volunteer = await prisma.volunteer.create({
+        data: { name: name.trim(), isInternal: false, availability: 'BOTH' },
+      });
+    }
+    res.json(volunteer);
+  } catch (err) {
+    res.status(500).json({ error: '봉사자 조회/생성 실패' });
   }
 });
 

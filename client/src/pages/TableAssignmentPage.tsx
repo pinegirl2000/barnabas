@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import { Grid3X3, Zap, ChevronLeft, ChevronRight, Crown } from 'lucide-react';
+import { Grid3X3, Zap, ChevronLeft, ChevronRight, Crown, Gift } from 'lucide-react';
 import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
+import { volunteerDisplayName } from '../lib/volunteerDisplay';
 
 export default function TableAssignmentPage() {
   const { isFamilyTeam } = useAuth();
@@ -225,12 +226,16 @@ function DraggableCard({ assignment, inverted }: { assignment: any; inverted?: b
 
   const memberNames = assignment.family?.members?.filter((m: any) => m.attending).map((m: any) => m.name).join(', ') || '가족';
   const nextSession = assignment.family?.sessions?.find((s: any) => !s.completed);
-  const isPastorVisit = nextSession?.type === 'PASTOR_VISIT';
+  const isPastorVisit = nextSession?.type === 'PASTOR_VISIT' || nextSession?.pastorVisit;
   const pastorLabel = isPastorVisit
     ? (assignment.family?.type === 'RE_REGISTER'
       ? (nextSession.sessionNumber === 1 ? '부목사님 면담' : '담임목사님 면담')
       : '담임목사님 면담')
     : null;
+  const isGiftSession = nextSession && (
+    (assignment.family?.type === 'NEW' && nextSession.sessionNumber === 6) ||
+    (assignment.family?.type === 'RE_REGISTER' && nextSession.sessionNumber === 2)
+  );
 
   return (
     <div
@@ -243,7 +248,11 @@ function DraggableCard({ assignment, inverted }: { assignment: any; inverted?: b
       } bg-white border-gray-200 shadow-sm`}
     >
       <div className="flex items-center justify-center gap-1.5">
-        <span className="text-sm font-medium text-gray-900">{memberNames}</span>
+        <span
+          className="text-sm font-medium text-gray-900 hover:text-primary-600 hover:underline"
+          onPointerDown={e => e.stopPropagation()}
+          onClick={e => { e.stopPropagation(); window.location.href = `/families/${assignment.family.id}`; }}
+        >{memberNames}</span>
         {nextSession && (
           <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600">
             {nextSession.sessionNumber}주차
@@ -252,13 +261,22 @@ function DraggableCard({ assignment, inverted }: { assignment: any; inverted?: b
         {isPastorVisit && (
           <Crown className="w-4 h-4 text-purple-500 flex-shrink-0" />
         )}
+        {isGiftSession && (
+          <Gift className="w-4 h-4 text-pink-500 flex-shrink-0" />
+        )}
       </div>
       {pastorLabel && (
         <div className="text-xs mt-0.5 text-purple-600 text-center">{pastorLabel}</div>
       )}
-      {assignment.volunteer && (
-        <div className="text-xs mt-1 text-gray-500 text-center">바나바: {assignment.volunteer.name}</div>
+      {isGiftSession && (
+        <div className="text-xs mt-0.5 text-pink-600 text-center">선물준비</div>
       )}
+      {(() => {
+        const sessionVol = nextSession?.volunteer;
+        return (
+          <div className="text-xs mt-1 text-gray-500 text-center">바나바: {sessionVol ? volunteerDisplayName(sessionVol) : '미배정'}</div>
+        );
+      })()}
     </div>
   );
 }

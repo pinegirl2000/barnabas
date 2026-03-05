@@ -4,6 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import Header from '../components/layout/Header';
 import DateInput from '../components/ui/DateInput';
 import { api } from '../api/client';
+import { useTableNavigation } from '../hooks/useTableNavigation';
 
 interface MemberInput {
   name: string;
@@ -54,6 +55,7 @@ export default function FamilyFormPage() {
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [volunteerId, setVolunteerId] = useState('');
   const [address, setAddress] = useState('');
+  const { tbodyRef, cellProps } = useTableNavigation(isSingle, members.length);
 
   useEffect(() => {
     api.getRegions().then(setRegions).catch(() => {});
@@ -298,26 +300,28 @@ export default function FamilyFormPage() {
                     {!isSingle && <th className="w-8"></th>}
                   </tr>
                 </thead>
-                <tbody>
+                <tbody ref={tbodyRef}>
                   {members.map((member, index) => (
                     <tr key={index} className="border-b border-gray-50 hover:bg-gray-50">
                       <td className="py-1.5 px-2 text-gray-400 text-center">{index + 1}</td>
                       <td className="py-1.5 px-2">
                         <input
+                          {...cellProps(index, 'name')}
                           type="text"
                           placeholder={index === 0 ? '이름 *' : '이름'}
                           value={member.name}
                           onChange={e => updateMember(index, 'name', e.target.value)}
-                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm"
+                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary-300 focus:border-primary-300"
                           required={index === 0}
                         />
                       </td>
                       {!isSingle && (
                         <td className="py-1.5 px-2">
                           <select
+                            {...cellProps(index, 'relation')}
                             value={member.relation}
                             onChange={e => updateMember(index, 'relation', e.target.value)}
-                            className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm"
+                            className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary-300 focus:border-primary-300"
                           >
                             <option value="">선택</option>
                             <option value="남편">남편</option>
@@ -335,6 +339,7 @@ export default function FamilyFormPage() {
                       )}
                       <td className="py-1.5 px-2">
                         <input
+                          {...cellProps(index, 'birthDate')}
                           type="text"
                           placeholder="YYYY/MM/DD"
                           value={member.birthDate}
@@ -346,23 +351,25 @@ export default function FamilyFormPage() {
                             if (v.length > 10) v = v.slice(0, 10);
                             updateMember(index, 'birthDate', v);
                           }}
-                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm"
+                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary-300 focus:border-primary-300"
                         />
                       </td>
                       <td className="py-1.5 px-2">
                         <input
+                          {...cellProps(index, 'phone')}
                           type="text"
                           placeholder="010-0000-0000"
                           value={member.phone}
                           onChange={e => updateMember(index, 'phone', e.target.value)}
-                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm"
+                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary-300 focus:border-primary-300"
                         />
                       </td>
                       <td className="py-1.5 px-2">
                         <select
+                          {...cellProps(index, 'position')}
                           value={member.position}
                           onChange={e => updateMember(index, 'position', e.target.value)}
-                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm"
+                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary-300 focus:border-primary-300"
                         >
                           <option value="">선택</option>
                           <option value="새신자">새신자</option>
@@ -374,22 +381,28 @@ export default function FamilyFormPage() {
                         </select>
                       </td>
                       <td className="py-1.5 px-2">
-                        <div className="flex items-center justify-center gap-2">
+                        <div
+                          {...cellProps(index, 'baptized')}
+                          tabIndex={0}
+                          className="flex items-center justify-center gap-2 outline-none focus:ring-1 focus:ring-primary-300 rounded px-1 py-0.5"
+                          onKeyDown={e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); updateMember(index, 'baptized', !member.baptized); } }}
+                        >
                           <label className="flex items-center gap-0.5 cursor-pointer">
-                            <input type="radio" name={`baptized-${index}`} checked={member.baptized} onChange={() => updateMember(index, 'baptized', true)} className="w-3.5 h-3.5" />
+                            <input type="radio" tabIndex={-1} name={`baptized-${index}`} checked={member.baptized} onChange={() => updateMember(index, 'baptized', true)} className="w-3.5 h-3.5" />
                             <span className="text-xs">Y</span>
                           </label>
                           <label className="flex items-center gap-0.5 cursor-pointer">
-                            <input type="radio" name={`baptized-${index}`} checked={!member.baptized} onChange={() => updateMember(index, 'baptized', false)} className="w-3.5 h-3.5" />
+                            <input type="radio" tabIndex={-1} name={`baptized-${index}`} checked={!member.baptized} onChange={() => updateMember(index, 'baptized', false)} className="w-3.5 h-3.5" />
                             <span className="text-xs">N</span>
                           </label>
                         </div>
                       </td>
                       <td className="py-1.5 px-2">
                         <select
+                          {...cellProps(index, 'baptismYear')}
                           value={member.baptismYear}
                           onChange={e => updateMember(index, 'baptismYear', e.target.value)}
-                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm"
+                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary-300 focus:border-primary-300"
                           disabled={!member.baptized}
                         >
                           <option value="">선택</option>
@@ -400,34 +413,45 @@ export default function FamilyFormPage() {
                       </td>
                       <td className="py-1.5 px-2">
                         <input
+                          {...cellProps(index, 'previousChurch')}
                           type="text"
                           placeholder="이전교회"
                           value={member.previousChurch}
                           onChange={e => updateMember(index, 'previousChurch', e.target.value)}
-                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm"
+                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary-300 focus:border-primary-300"
                         />
                       </td>
                       <td className="py-1.5 px-2">
-                        <div className="flex items-center justify-center gap-2">
+                        <div
+                          {...cellProps(index, 'livingInSG')}
+                          tabIndex={0}
+                          className="flex items-center justify-center gap-2 outline-none focus:ring-1 focus:ring-primary-300 rounded px-1 py-0.5"
+                          onKeyDown={e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); updateMember(index, 'livingInSG', !member.livingInSG); } }}
+                        >
                           <label className="flex items-center gap-0.5 cursor-pointer">
-                            <input type="radio" name={`livingInSG-${index}`} checked={member.livingInSG} onChange={() => updateMember(index, 'livingInSG', true)} className="w-3.5 h-3.5" />
+                            <input type="radio" tabIndex={-1} name={`livingInSG-${index}`} checked={member.livingInSG} onChange={() => updateMember(index, 'livingInSG', true)} className="w-3.5 h-3.5" />
                             <span className="text-xs">Y</span>
                           </label>
                           <label className="flex items-center gap-0.5 cursor-pointer">
-                            <input type="radio" name={`livingInSG-${index}`} checked={!member.livingInSG} onChange={() => updateMember(index, 'livingInSG', false)} className="w-3.5 h-3.5" />
+                            <input type="radio" tabIndex={-1} name={`livingInSG-${index}`} checked={!member.livingInSG} onChange={() => updateMember(index, 'livingInSG', false)} className="w-3.5 h-3.5" />
                             <span className="text-xs">N</span>
                           </label>
                         </div>
                       </td>
                       {!isSingle && (
                         <td className="py-1.5 px-2">
-                          <div className="flex items-center justify-center gap-2">
+                          <div
+                            {...cellProps(index, 'attending')}
+                            tabIndex={0}
+                            className="flex items-center justify-center gap-2 outline-none focus:ring-1 focus:ring-primary-300 rounded px-1 py-0.5"
+                            onKeyDown={e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); updateMember(index, 'attending', !member.attending); } }}
+                          >
                             <label className="flex items-center gap-0.5 cursor-pointer">
-                              <input type="radio" name={`attending-${index}`} checked={member.attending} onChange={() => updateMember(index, 'attending', true)} className="w-3.5 h-3.5" />
+                              <input type="radio" tabIndex={-1} name={`attending-${index}`} checked={member.attending} onChange={() => updateMember(index, 'attending', true)} className="w-3.5 h-3.5" />
                               <span className="text-xs">Y</span>
                             </label>
                             <label className="flex items-center gap-0.5 cursor-pointer">
-                              <input type="radio" name={`attending-${index}`} checked={!member.attending} onChange={() => updateMember(index, 'attending', false)} className="w-3.5 h-3.5" />
+                              <input type="radio" tabIndex={-1} name={`attending-${index}`} checked={!member.attending} onChange={() => updateMember(index, 'attending', false)} className="w-3.5 h-3.5" />
                               <span className="text-xs">N</span>
                             </label>
                           </div>
@@ -435,11 +459,12 @@ export default function FamilyFormPage() {
                       )}
                       <td className="py-1.5 px-2">
                         <input
+                          {...cellProps(index, 'memo')}
                           type="text"
                           placeholder="메모"
                           value={member.memo}
                           onChange={e => updateMember(index, 'memo', e.target.value)}
-                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm"
+                          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-primary-300 focus:border-primary-300"
                         />
                       </td>
                       {!isSingle && (

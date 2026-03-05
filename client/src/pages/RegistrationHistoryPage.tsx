@@ -4,6 +4,7 @@ import { UserPlus, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { getFamilyTypeLabel, getServiceTimeLabel, getStatusColor, getStatusLabel } from '../lib/utils';
+import { volunteerDisplayName } from '../lib/volunteerDisplay';
 
 function getMonthRange(monthsBack: number) {
   const now = new Date();
@@ -186,7 +187,7 @@ export default function RegistrationHistoryPage() {
                         </thead>
                         <tbody>
                           {group.families.map((f: any) => {
-                            const volunteerName = f.sessions?.find((s: any) => s.volunteer)?.volunteer?.name || '-';
+                            const volunteerName = volunteerDisplayName(f.sessions?.find((s: any) => s.volunteer)?.volunteer) || '-';
                             const completedCount = f.sessions?.filter((s: any) => s.completed).length || 0;
                             const totalSessions = f.sessions?.length || 0;
 

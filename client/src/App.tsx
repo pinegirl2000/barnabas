@@ -16,6 +16,7 @@ import DistrictPage from './pages/DistrictPage';
 import AdminPage from './pages/AdminPage';
 import GraduatedPage from './pages/GraduatedPage';
 import RegistrationHistoryPage from './pages/RegistrationHistoryPage';
+import FamilySearchPage from './pages/FamilySearchPage';
 import PhoneVisitPage from './pages/PhoneVisitPage';
 import VolunteerSchedulePage from './pages/VolunteerSchedulePage';
 
@@ -142,6 +143,7 @@ function ProtectedLayout() {
               <Route path="registrations" element={<RegistrationHistoryPage />} />
               <Route path="graduated" element={<GraduatedPage />} />
               <Route path="phone-visits" element={<PhoneVisitPage />} />
+              <Route path="family-search" element={<FamilySearchPage />} />
               <Route path="assignments" element={<TableAssignmentPage />} />
               <Route path="volunteer-schedule" element={<VolunteerSchedulePage />} />
               <Route path="volunteers" element={<VolunteerPage />} />

@@ -27,6 +27,7 @@ const commonTabs = [
 
 // 어드민 드롭다운 메뉴
 const adminMenuItems = [
+  { to: '/family-search', icon: ClipboardList, label: '새가족 조회', roles: ['ADMIN', 'FAMILY_TEAM'] },
   { to: '/assignments', icon: Grid3X3, label: '테이블 배정', roles: ['ADMIN', 'FAMILY_TEAM'] },
   { to: '/volunteers', icon: Heart, label: '바나바 관리', roles: ['ADMIN'] },
   { to: '/districts', icon: Building2, label: '교구/구역', roles: ['ADMIN'] },

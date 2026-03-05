@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Calendar, User } from 'lucide-react';
 import Header from '../components/layout/Header';
 import { api } from '../api/client';
+import { volunteerDisplayName } from '../lib/volunteerDisplay';
 
 export default function VolunteerSchedulePage() {
   const [data, setData] = useState<any>(null);
@@ -83,7 +84,7 @@ export default function VolunteerSchedulePage() {
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <User className={`w-4 h-4 ${groupHighlighted ? 'text-pink-300' : 'text-pink-500'}`} />
-                    <h3 className={`font-semibold ${groupHighlighted ? 'text-white' : 'text-gray-900'}`}>{group.volunteer.name}</h3>
+                    <h3 className={`font-semibold ${groupHighlighted ? 'text-white' : 'text-gray-900'}`}>{volunteerDisplayName(group.volunteer)}</h3>
                     <span className={`text-xs ${groupHighlighted ? 'text-slate-400' : 'text-gray-400'}`}>({group.items.length}건)</span>
                   </div>
                   <table className="w-full text-sm">

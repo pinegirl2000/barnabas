@@ -180,6 +180,52 @@ familyRouter.get('/phone-visits', async (_req: Request, res: Response) => {
   }
 });
 
+// 새가족 조회 (기간별 검색)
+familyRouter.get('/search', async (req: Request, res: Response) => {
+  try {
+    const fromDate = query(req, 'fromDate');
+    const toDate = query(req, 'toDate');
+    const search = query(req, 'search');
+
+    // 1회차 완료일 기준 필터링
+    const sessionFilter: any = { sessionNumber: 1, date: { not: null } };
+    if (fromDate || toDate) {
+      sessionFilter.date = {};
+      if (fromDate) sessionFilter.date.gte = new Date(fromDate + 'T00:00:00');
+      if (toDate) sessionFilter.date.lte = new Date(toDate + 'T23:59:59');
+    }
+
+    const where: any = {
+      sessions: { some: sessionFilter },
+    };
+    if (search) {
+      where.members = { some: { name: { contains: search, mode: 'insensitive' } } };
+    }
+
+    const families = await prisma.family.findMany({
+      where,
+      include: {
+        members: true,
+        sessions: { orderBy: { sessionNumber: 'asc' }, include: { volunteer: true } },
+        district: true,
+        region: true,
+        zone: true,
+      },
+      orderBy: { registeredAt: 'desc' },
+    });
+
+    const result = families.map(f => {
+      const firstSession = f.sessions.find(s => s.sessionNumber === 1);
+      return { ...f, firstSessionDate: firstSession?.date || null };
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: '새가족 조회 실패' });
+  }
+});
+
 // 새가족 상세
 familyRouter.get('/:id', async (req: Request, res: Response) => {
   try {
