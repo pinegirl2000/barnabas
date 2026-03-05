@@ -286,7 +286,7 @@ export default function FamilyDetailPage() {
   return (
     <div className="flex-1">
       <Header
-        title={memberNames}
+        title={`${family.registrationNumber ? `[${family.registrationNumber}] ` : ''}${memberNames}`}
         subtitle={`${formatDate(family.registeredAt)} 등록`}
         actions={
           <div className="flex items-center gap-2">
@@ -339,6 +339,17 @@ export default function FamilyDetailPage() {
 
           {infoTab === 'info' ? (
             <div className="p-4">
+              {/* 사진 + 등록번호 */}
+              {(family.photoUrl || family.registrationNumber) && (
+                <div className="flex items-center gap-3 mb-3">
+                  {family.photoUrl && (
+                    <img src={family.photoUrl} alt="가족사진" className="w-14 h-14 rounded-lg object-cover border border-gray-200" />
+                  )}
+                  {family.registrationNumber && (
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">등록번호: {family.registrationNumber}</span>
+                  )}
+                </div>
+              )}
               <div className="flex items-center gap-2 mb-3">
                 <div className="flex items-center gap-2">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${family.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>

@@ -4,15 +4,20 @@ import { FamilyType, SessionType } from '@prisma/client';
 /**
  * 가장 최근 지난 주일(일요일) 날짜를 구한다.
  * 오늘이 일요일이면 오늘을 반환.
+ * 로컬 시간 기준으로 계산 후 UTC 정오로 변환 (타임존 혼합 방지)
  */
 function getMostRecentSunday(): Date {
   const today = new Date();
   const day = today.getDay(); // 0=일, 1=월 ...
   const sunday = new Date(today);
   sunday.setDate(today.getDate() - day);
-  // UTC 정오로 저장하여 어떤 타임존에서도 같은 날짜로 표시
-  sunday.setUTCHours(12, 0, 0, 0);
-  return sunday;
+  // 로컬 날짜 컴포넌트로 UTC 정오 생성 (setDate + setUTCHours 혼합 버그 방지)
+  return new Date(Date.UTC(
+    sunday.getFullYear(),
+    sunday.getMonth(),
+    sunday.getDate(),
+    12, 0, 0, 0
+  ));
 }
 
 function addWeeks(date: Date, weeks: number): Date {

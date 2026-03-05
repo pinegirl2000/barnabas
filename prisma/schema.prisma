@@ -70,20 +70,21 @@ model User {
 }
 
 model Family {
-  id            String       @id @default(cuid())
-  registeredAt  DateTime     @default(now())
-  type          FamilyType
-  serviceTime   ServiceTime
-  status        FamilyStatus @default(ACTIVE)
-  photoUrl      String?
-  districtId    String?
-  regionId      String?
-  zoneId        String?
-  arrivalDate   DateTime?
-  address       String?
-  lastContactAt DateTime?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id                 String       @id @default(cuid())
+  registrationNumber String?      @unique // YYYY-001 format
+  registeredAt       DateTime     @default(now())
+  type               FamilyType
+  serviceTime        ServiceTime
+  status             FamilyStatus @default(ACTIVE)
+  photoUrl           String?
+  districtId         String?
+  regionId           String?
+  zoneId             String?
+  arrivalDate        DateTime?
+  address            String?
+  lastContactAt      DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 
   members     Member[]
   sessions    SessionRecord[]

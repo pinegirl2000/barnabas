@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Camera } from 'lucide-react';
 import Header from '../components/layout/Header';
 import DateInput from '../components/ui/DateInput';
 import { api } from '../api/client';
@@ -54,7 +54,24 @@ export default function FamilyEditPage() {
   const [deletedMemberIds, setDeletedMemberIds] = useState<string[]>([]);
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [volunteerId, setVolunteerId] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { tbodyRef, cellProps } = useTableNavigation(isSingle, members.length);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { url } = await api.uploadPhoto(file);
+      setPhotoUrl(url);
+    } catch {
+      alert('사진 업로드 실패');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -70,6 +87,7 @@ export default function FamilyEditPage() {
       setStatus(family.status);
       setRegionId(family.regionId || '');
       setAddress(family.address || '');
+      setPhotoUrl(family.photoUrl || '');
       setArrivalDate(family.arrivalDate ? new Date(family.arrivalDate).toISOString().split('T')[0].replace(/-/g, '/') : '');
 
       // 현재 담당 바나바: 미완료 세션 중 배정된 바나바
@@ -168,6 +186,7 @@ export default function FamilyEditPage() {
         zoneId: zoneId || null,
         arrivalDate: arrivalDate ? new Date(arrivalDate.replace(/\//g, '-')).toISOString() : null,
         address: address || null,
+        photoUrl: photoUrl || null,
         volunteerId: volunteerId || null,
         members: members
           .filter(m => m.name.trim())
@@ -218,6 +237,23 @@ export default function FamilyEditPage() {
           {/* 기본 정보 */}
           <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
             <h3 className="font-semibold text-gray-900 text-sm mb-2">기본 정보</h3>
+            {/* 사진 업로드 */}
+            <div className="flex items-center gap-3 mb-3">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors overflow-hidden"
+              >
+                {photoUrl ? (
+                  <img src={photoUrl} alt="가족사진" className="w-full h-full object-cover" />
+                ) : uploading ? (
+                  <div className="animate-spin w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full" />
+                ) : (
+                  <Camera className="w-5 h-5 text-gray-400" />
+                )}
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+              <span className="text-xs text-gray-400">{photoUrl ? '사진 변경' : '사진 등록'}</span>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-2">
               <div>
                 <label className="block text-xs text-gray-500 mb-0.5">유형</label>

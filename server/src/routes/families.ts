@@ -8,6 +8,25 @@ import { param, query } from '../utils/params';
 export const familyRouter = Router();
 familyRouter.use(authenticate);
 
+// 등록번호 자동 생성: YYYY-001 형식
+async function generateRegistrationNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const prefix = `${year}-`;
+
+  const lastFamily = await prisma.family.findFirst({
+    where: { registrationNumber: { startsWith: prefix } },
+    orderBy: { registrationNumber: 'desc' },
+  });
+
+  let nextNum = 1;
+  if (lastFamily?.registrationNumber) {
+    const lastNum = parseInt(lastFamily.registrationNumber.split('-')[1], 10);
+    nextNum = lastNum + 1;
+  }
+
+  return `${year}-${String(nextNum).padStart(3, '0')}`;
+}
+
 // 새가족 목록
 familyRouter.get('/', async (req: Request, res: Response) => {
   try {
@@ -265,10 +284,14 @@ familyRouter.post(
     try {
       const { members, type, serviceTime, districtId, regionId, zoneId, photoUrl, arrivalDate, volunteerId, address } = req.body;
 
+      // 등록번호 자동 발급
+      const registrationNumber = await generateRegistrationNumber();
+
       const family = await prisma.family.create({
         data: {
           type: type || 'NEW',
           serviceTime: serviceTime || 'FIRST',
+          registrationNumber,
           districtId,
           regionId,
           zoneId,

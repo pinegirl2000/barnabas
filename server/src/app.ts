@@ -12,6 +12,7 @@ import { pastorRouter } from './routes/pastors';
 import { sessionRouter } from './routes/sessions';
 import { assignmentRouter } from './routes/assignments';
 import { dashboardRouter } from './routes/dashboard';
+import { uploadRouter } from './routes/upload';
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/pastors', pastorRouter);
 app.use('/api/sessions', sessionRouter);
 app.use('/api/assignments', assignmentRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/upload', uploadRouter);
 
 // Static file serving for uploads
 app.use('/uploads', express.static('uploads'));

@@ -104,6 +104,20 @@ export const api = {
   createPastor: (data: any) => request<any>('/pastors', { method: 'POST', body: JSON.stringify(data) }),
   updatePastor: (id: string, data: any) => request<any>(`/pastors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
+  // Upload
+  uploadPhoto: async (file: File): Promise<{ url: string }> => {
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('photo', file);
+    const res = await fetch(`${API_URL}/upload/photo`, {
+      method: 'POST',
+      headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+      body: formData,
+    });
+    if (!res.ok) throw new Error('Upload failed');
+    return res.json();
+  },
+
   // Members
   updateMember: (id: string, data: any) => request<any>(`/members/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteMember: (id: string) => request<void>(`/members/${id}`, { method: 'DELETE' }),
