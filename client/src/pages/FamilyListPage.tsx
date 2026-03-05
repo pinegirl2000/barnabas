@@ -138,9 +138,11 @@ function Users(props: any) {
 
 function FamilyRow({ family, index }: { family: any; index: number }) {
   const members = family.members || [];
-  const memberNames = members.length === 0 ? '이름 없음'
-    : members.length === 1 ? members[0].name
-    : members.slice(0, 2).map((m: any) => m.name).join(', ');
+  const attending = members.filter((m: any) => m.attending);
+  const displayMembers = attending.length > 0 ? attending : members;
+  const memberNames = displayMembers.length === 0 ? '이름 없음'
+    : displayMembers.length === 1 ? displayMembers[0].name
+    : displayMembers.slice(0, 2).map((m: any) => m.name).join(', ');
   const completedCount = family.sessions?.filter((s: any) => s.completed).length || 0;
   const totalSessions = family.sessions?.length || 0;
   const volunteer = family.sessions?.find((s: any) => s.volunteerId)?.volunteer;
