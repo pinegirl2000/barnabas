@@ -197,9 +197,14 @@ export default function FamilyDetailPage() {
         }
       }
 
-      if (edit.volunteerId === '__ZONE_LEADER__' && edit.zoneLeaderName?.trim()) {
+      if (edit.volunteerId === '__ZONE_LEADER__') {
+        const zName = edit.zoneLeaderName?.trim();
+        if (!zName || zName === '구역장' || zName === '지역장') {
+          alert('구역장 이름을 입력해주세요');
+          return;
+        }
         // 구역장: 이름으로 봉사자 찾거나 생성 후 배정
-        const vol = await api.findOrCreateVolunteer(edit.zoneLeaderName.trim());
+        const vol = await api.findOrCreateVolunteer(zName);
         tasks.push(api.changeVolunteer(sessionId, vol.id).catch(e => console.error('구역장 배정 실패:', e)));
       } else if (edit.volunteerId !== undefined && edit.volunteerId !== '__ZONE_LEADER__') {
         tasks.push(api.changeVolunteer(sessionId, edit.volunteerId || null).catch(e => console.error('바나바 변경 실패:', e)));
@@ -641,7 +646,7 @@ export default function FamilyDetailPage() {
                           type="text"
                           placeholder="구역장 이름 입력"
                           value={pending?.zoneLeaderName ?? defaultZoneLeaderName}
-                          onChange={e => setPending(session.id, 'zoneLeaderName', e.target.value)}
+                          onChange={e => { setPending(session.id, 'zoneLeaderName', e.target.value); setPending(session.id, 'volunteerId', '__ZONE_LEADER__'); }}
                           className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 mt-1.5"
                         />
                       )}
