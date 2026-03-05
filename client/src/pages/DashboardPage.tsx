@@ -397,12 +397,7 @@ export default function DashboardPage() {
                           <span className="text-sm font-medium">
                             {f.members.filter((m: any) => m.attending).map((m: any) => m.name).slice(0, 2).join(', ')}
                           </span>
-                          <span className="text-xs text-gray-500">{(() => {
-                            const gradSession = f.sessions?.find((s: any) =>
-                              f.type === 'RE_REGISTER' ? s.sessionNumber === 2 : s.sessionNumber === 6
-                            );
-                            return gradSession?.date ? formatDate(gradSession.date) : formatDate(f.registeredAt);
-                          })()}</span>
+                          <span className="text-xs text-gray-500">{f.projectedDate ? formatDate(f.projectedDate) : ''}</span>
                         </Link>
                       </li>
                     ))}
