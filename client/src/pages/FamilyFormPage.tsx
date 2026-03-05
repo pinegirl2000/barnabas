@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2 } from 'lucide-react';
 import Header from '../components/layout/Header';
 import DateInput from '../components/ui/DateInput';
+import { volunteerListName } from '../lib/volunteerDisplay';
 import { api } from '../api/client';
 import { useTableNavigation } from '../hooks/useTableNavigation';
 
@@ -251,7 +252,7 @@ export default function FamilyFormPage() {
                 <label className="block text-xs text-gray-500 mb-0.5">담당바나바</label>
                 <select value={volunteerId} onChange={e => setVolunteerId(e.target.value)} className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm">
                   <option value="">미정</option>
-                  {volunteers.filter(v => v.isActive).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                  {volunteers.filter(v => v.isActive).map(v => <option key={v.id} value={v.id}>{volunteerListName(v)}</option>)}
                 </select>
               </div>
               <div>
