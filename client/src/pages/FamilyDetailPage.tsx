@@ -12,17 +12,34 @@ function toLocaleDateStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-/** 가장 최근 과거 주일 (오늘이 일요일이면 오늘) */
-function getMostRecentSunday(): Date {
+/** 지난 주일 (오늘이 일요일이면 오늘이 이번 주일이므로 7일 전) */
+function getLastSunday(): Date {
   const today = new Date();
   const day = today.getDay();
   const sunday = new Date(today);
-  sunday.setDate(today.getDate() - day);
+  if (day === 0) {
+    sunday.setDate(today.getDate() - 7);
+  } else {
+    sunday.setDate(today.getDate() - day);
+  }
   sunday.setHours(0, 0, 0, 0);
   return sunday;
 }
 
-const MOST_RECENT_SUNDAY_ISO = toLocaleDateStr(getMostRecentSunday());
+/** 이번 주일 (오늘이 일요일이면 오늘, 아니면 다음 일요일) */
+function getThisSunday(): Date {
+  const today = new Date();
+  const day = today.getDay();
+  const sunday = new Date(today);
+  if (day !== 0) {
+    sunday.setDate(today.getDate() + (7 - day));
+  }
+  sunday.setHours(0, 0, 0, 0);
+  return sunday;
+}
+
+const LAST_SUNDAY_ISO = toLocaleDateStr(getLastSunday());
+const THIS_SUNDAY_ISO = toLocaleDateStr(getThisSunday());
 
 /** 올해 모든 주일 날짜 목록 생성 */
 function getSundayOptions(): { value: string; label: string; isRecent: boolean }[] {
@@ -34,10 +51,11 @@ function getSundayOptions(): { value: string; label: string; isRecent: boolean }
   if (dayOfWeek !== 0) d.setDate(d.getDate() + (7 - dayOfWeek));
   while (d.getFullYear() === year) {
     const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    const isRecent = iso === MOST_RECENT_SUNDAY_ISO;
+    const isLast = iso === LAST_SUNDAY_ISO;
+    const isThis = iso === THIS_SUNDAY_ISO;
     const dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-    const label = isRecent ? `${dateStr} (최근 주일)` : dateStr;
-    sundays.push({ value: iso, label, isRecent });
+    const label = isLast ? `${dateStr} (지난 주일)` : isThis ? `${dateStr} (이번 주일)` : dateStr;
+    sundays.push({ value: iso, label, isRecent: isLast || isThis });
     d.setDate(d.getDate() + 7);
   }
   return sundays;
