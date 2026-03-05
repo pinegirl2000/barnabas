@@ -33,10 +33,29 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1">
-      <Header
-        title={`대시보드 - ${(() => { const s = new Date(); const d = s.getDay(); s.setDate(s.getDate() + (d === 0 ? 0 : 7 - d)); return `${s.getMonth() + 1}월${s.getDate()}일`; })()}`}
-        subtitle=""
-      />
+      <div className="flex items-center justify-between px-3 sm:px-6 pt-3 sm:pt-4">
+        <h2 className="text-lg font-bold text-gray-900">
+          {`대시보드 - ${(() => { const s = new Date(); const d = s.getDay(); s.setDate(s.getDate() + (d === 0 ? 0 : 7 - d)); return `${s.getMonth() + 1}월${s.getDate()}일`; })()}`}
+        </h2>
+        {!isUserOnly && (
+          <div className="flex items-center gap-2">
+            <Link
+              to="/families/new"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              새가족 등록
+            </Link>
+            <Link
+              to="/assignments"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 transition-colors"
+            >
+              <Grid3X3 className="w-3.5 h-3.5" />
+              테이블 배정보기
+            </Link>
+          </div>
+        )}
+      </div>
 
       <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
         {/* 통계 카드 */}
@@ -94,24 +113,6 @@ export default function DashboardPage() {
               <Calendar className="w-5 h-5 text-pink-500" />
               바나바 교육일정
             </h3>
-            {!isUserOnly && (
-              <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:float-right sm:-mt-7">
-                <Link
-                  to="/families/new"
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  새가족 등록
-                </Link>
-                <Link
-                  to="/assignments"
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 transition-colors"
-                >
-                  <Grid3X3 className="w-3.5 h-3.5" />
-                  테이블 배정보기
-                </Link>
-              </div>
-            )}
           </div>
           {data?.weeklyVolunteerSchedule?.length > 0 ? (
             (() => {

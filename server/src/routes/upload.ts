@@ -36,6 +36,7 @@ async function compressToTarget(buffer: Buffer): Promise<Buffer> {
   let width = 800;
 
   let result = await sharp(buffer)
+    .rotate()
     .resize(width, width, { fit: 'inside', withoutEnlargement: true })
     .jpeg({ quality })
     .toBuffer();

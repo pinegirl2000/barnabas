@@ -219,6 +219,9 @@ function FamilyCard({ family, index }: { family: any; index: number }) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 min-w-0">
           <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary-100 text-primary-600 text-[10px] font-bold shrink-0">{index}</span>
+          {family.photoUrl && (
+            <img src={family.photoUrl} alt="" className="w-7 h-7 rounded-full object-cover border border-gray-200 shrink-0" />
+          )}
           <span className="text-sm font-medium text-primary-600 truncate">{memberNames}</span>
           <span className={`px-1.5 py-0.5 rounded-full text-[10px] shrink-0 ${family.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
             {getFamilyTypeLabel(family.type)}
@@ -276,6 +279,9 @@ function FamilyRow({ family, index }: { family: any; index: number }) {
       <td className="py-2.5 px-4">
         <Link to={`/families/${family.id}`} className="flex items-center gap-2 text-primary-600 hover:underline font-medium">
           <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary-100 text-primary-600 text-[10px] font-bold flex-shrink-0">{index}</span>
+          {family.photoUrl && (
+            <img src={family.photoUrl} alt="" className="w-7 h-7 rounded-full object-cover border border-gray-200 shrink-0" />
+          )}
           {memberNames}
         </Link>
       </td>
