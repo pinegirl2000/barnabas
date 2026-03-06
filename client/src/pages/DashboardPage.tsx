@@ -7,13 +7,13 @@ import { useAuthStore } from '../store/authStore';
 import { formatDate, getStatusColor, getStatusLabel } from '../lib/utils';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
 import { familyDisplayNames } from '../lib/familyDisplayNames';
+import PhotoThumbnail from '../components/PhotoThumbnail';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const isUserOnly = user?.role === 'USER';
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   useEffect(() => {
     api.getDashboard().then(setData).catch(console.error).finally(() => setLoading(false));
@@ -182,14 +182,7 @@ export default function DashboardPage() {
                               <div key={s.sessionId} className={`p-3 border-b border-slate-100 ${isMySchedule ? 'bg-yellow-50 ring-1 ring-inset ring-yellow-300 rounded-lg mb-1' : ''}`}>
                                 <div className="flex items-center gap-2">
                                   <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold shrink-0">{gIdx + 1}</span>
-                                  {s.family.photoUrl && (
-                                    <img
-                                      src={s.family.photoUrl}
-                                      alt=""
-                                      className="w-7 h-7 rounded-full object-cover border border-gray-200 shrink-0 cursor-pointer"
-                                      onClick={() => setLightboxUrl(s.family.photoUrl)}
-                                    />
-                                  )}
+                                  <PhotoThumbnail thumbnail={s.family.photoThumbnail} fullPhoto={s.family.photoUrl} />
                                   {isUserOnly ? (
                                     <span className="text-slate-800 font-medium">
                                       {attendingNames}
@@ -279,14 +272,7 @@ export default function DashboardPage() {
                               <td className="py-2.5 px-3">
                                 <div className="flex items-center gap-2">
                                   <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold shrink-0">{gIdx + 1}</span>
-                                  {s.family.photoUrl && (
-                                    <img
-                                      src={s.family.photoUrl}
-                                      alt=""
-                                      className="w-7 h-7 rounded-full object-cover border border-gray-200 shrink-0 cursor-pointer"
-                                      onClick={() => setLightboxUrl(s.family.photoUrl)}
-                                    />
-                                  )}
+                                  <PhotoThumbnail thumbnail={s.family.photoThumbnail} fullPhoto={s.family.photoUrl} />
                                   {isUserOnly ? (
                                     <span className="text-slate-800 font-medium">
                                       {attendingNames}
@@ -465,20 +451,6 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* 사진 라이트박스 */}
-      {lightboxUrl && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={() => setLightboxUrl(null)}
-        >
-          <img
-            src={lightboxUrl}
-            alt="가족사진"
-            className="max-w-[90vw] max-h-[80vh] rounded-xl shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          />
-        </div>
-      )}
     </div>
   );
 }

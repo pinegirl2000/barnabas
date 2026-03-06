@@ -55,6 +55,7 @@ export default function FamilyEditPage() {
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [volunteerId, setVolunteerId] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
+  const [photoThumbnail, setPhotoThumbnail] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { tbodyRef, cellProps } = useTableNavigation(isSingle, members.length);
@@ -64,8 +65,9 @@ export default function FamilyEditPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const { url } = await api.uploadPhoto(file);
+      const { url, thumbnail } = await api.uploadPhoto(file);
       setPhotoUrl(url);
+      setPhotoThumbnail(thumbnail);
     } catch {
       alert('사진 업로드 실패');
     } finally {
@@ -88,6 +90,7 @@ export default function FamilyEditPage() {
       setRegionId(family.regionId || '');
       setAddress(family.address || '');
       setPhotoUrl(family.photoUrl || '');
+      setPhotoThumbnail(family.photoThumbnail || '');
       setArrivalDate(family.arrivalDate ? new Date(family.arrivalDate).toISOString().split('T')[0].replace(/-/g, '/') : '');
 
       // 현재 담당 바나바: 미완료 세션 중 배정된 바나바
@@ -187,6 +190,7 @@ export default function FamilyEditPage() {
         arrivalDate: arrivalDate ? new Date(arrivalDate.replace(/\//g, '-')).toISOString() : null,
         address: address || null,
         photoUrl: photoUrl || null,
+        photoThumbnail: photoThumbnail || null,
         volunteerId: volunteerId || null,
         members: members
           .filter(m => m.name.trim())

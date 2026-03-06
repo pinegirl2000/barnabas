@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { formatDate, getFamilyTypeLabel, getServiceTimeLabel } from '../lib/utils';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
 import { familyDisplayNames } from '../lib/familyDisplayNames';
+import PhotoThumbnail from '../components/PhotoThumbnail';
 
 export default function PhoneVisitPage() {
   const [families, setFamilies] = useState<any[]>([]);
@@ -87,7 +88,10 @@ export default function PhoneVisitPage() {
               return (
                 <div key={f.id} className="bg-white rounded-xl border border-gray-200 p-3">
                   <div className="flex items-center justify-between mb-1.5">
-                    <Link to={`/families/${f.id}`} className="text-sm text-primary-600 font-medium truncate">{memberNames}</Link>
+                    <Link to={`/families/${f.id}`} className="flex items-center gap-1.5 text-sm text-primary-600 font-medium truncate">
+                      <PhotoThumbnail thumbnail={f.photoThumbnail} fullPhoto={f.photoUrl} />
+                      {memberNames}
+                    </Link>
                     <span className={`px-1.5 py-0.5 rounded-full text-[10px] shrink-0 ${f.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>{getFamilyTypeLabel(f.type)}</span>
                   </div>
                   <div className="text-xs text-gray-500 mb-1.5">바나바: {volunteerName}</div>
@@ -145,7 +149,8 @@ export default function PhoneVisitPage() {
                     <tr key={f.id} className="border-b border-gray-50 hover:bg-gray-50">
                       <td className="py-3 px-4 font-medium text-gray-900">{volunteerName}</td>
                       <td className="py-3 px-4">
-                        <Link to={`/families/${f.id}`} className="text-primary-600 hover:underline font-medium">
+                        <Link to={`/families/${f.id}`} className="flex items-center gap-1.5 text-primary-600 hover:underline font-medium">
+                          <PhotoThumbnail thumbnail={f.photoThumbnail} fullPhoto={f.photoUrl} />
                           {memberNames}
                         </Link>
                       </td>

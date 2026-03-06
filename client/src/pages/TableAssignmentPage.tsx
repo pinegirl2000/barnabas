@@ -7,6 +7,7 @@ import { api } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
 import { familyDisplayNames } from '../lib/familyDisplayNames';
+import PhotoThumbnail from '../components/PhotoThumbnail';
 
 export default function TableAssignmentPage() {
   const { isFamilyTeam } = useAuth();
@@ -279,6 +280,7 @@ function DraggableCard({ assignment, inverted }: { assignment: any; inverted?: b
       } bg-white border-gray-200 shadow-sm`}
     >
       <div className="flex items-center justify-center gap-1 flex-wrap">
+        <PhotoThumbnail thumbnail={assignment.family?.photoThumbnail} fullPhoto={assignment.family?.photoUrl} />
         <span
           className="text-xs sm:text-sm font-medium text-gray-900 hover:text-primary-600 hover:underline break-all"
           onPointerDown={e => e.stopPropagation()}

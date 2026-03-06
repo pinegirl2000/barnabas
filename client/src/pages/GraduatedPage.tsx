@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { formatDate, getFamilyTypeLabel, getServiceTimeLabel } from '../lib/utils';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
 import { familyDisplayNames } from '../lib/familyDisplayNames';
+import PhotoThumbnail from '../components/PhotoThumbnail';
 
 const YEARS = [2026, 2025];
 
@@ -90,7 +91,10 @@ export default function GraduatedPage() {
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-xs text-gray-400">{idx + 1}</span>
-                      <Link to={`/families/${f.id}`} className="text-sm text-primary-600 font-medium truncate">{familyDisplayNames(f.members || [])}</Link>
+                      <Link to={`/families/${f.id}`} className="flex items-center gap-1.5 text-sm text-primary-600 font-medium truncate">
+                        <PhotoThumbnail thumbnail={f.photoThumbnail} fullPhoto={f.photoUrl} />
+                        {familyDisplayNames(f.members || [])}
+                      </Link>
                     </div>
                     <span className={`px-1.5 py-0.5 rounded-full text-[10px] shrink-0 ${f.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>{getFamilyTypeLabel(f.type)}</span>
                   </div>
@@ -134,7 +138,8 @@ export default function GraduatedPage() {
                     <tr key={f.id} className="border-b border-gray-50 hover:bg-gray-50">
                       <td className="py-3 px-4 text-gray-400">{idx + 1}</td>
                       <td className="py-3 px-4">
-                        <Link to={`/families/${f.id}`} className="text-primary-600 hover:underline font-medium">
+                        <Link to={`/families/${f.id}`} className="flex items-center gap-1.5 text-primary-600 hover:underline font-medium">
+                          <PhotoThumbnail thumbnail={f.photoThumbnail} fullPhoto={f.photoUrl} />
                           {familyDisplayNames(f.members || [])}
                         </Link>
                       </td>

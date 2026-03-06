@@ -56,6 +56,7 @@ export default function FamilyFormPage() {
   const [volunteerId, setVolunteerId] = useState('');
   const [address, setAddress] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
+  const [photoThumbnail, setPhotoThumbnail] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { tbodyRef, cellProps } = useTableNavigation(isSingle, members.length);
@@ -65,8 +66,9 @@ export default function FamilyFormPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const { url } = await api.uploadPhoto(file);
+      const { url, thumbnail } = await api.uploadPhoto(file);
       setPhotoUrl(url);
+      setPhotoThumbnail(thumbnail);
     } catch {
       alert('사진 업로드 실패');
     } finally {
@@ -176,6 +178,7 @@ export default function FamilyFormPage() {
         volunteerId: volunteerId || undefined,
         address: address || undefined,
         photoUrl: photoUrl || undefined,
+        photoThumbnail: photoThumbnail || undefined,
         members: members
           .filter(m => m.name.trim())
           .map(m => ({

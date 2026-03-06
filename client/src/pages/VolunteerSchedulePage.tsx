@@ -5,6 +5,7 @@ import Header from '../components/layout/Header';
 import { api } from '../api/client';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
 import { familyDisplayNames } from '../lib/familyDisplayNames';
+import PhotoThumbnail from '../components/PhotoThumbnail';
 
 export default function VolunteerSchedulePage() {
   const [data, setData] = useState<any>(null);
@@ -119,10 +120,11 @@ export default function VolunteerSchedulePage() {
                             <td className="py-2 px-3">
                               <Link
                                 to={`/families/${item.family.id}`}
-                                className={`hover:underline font-medium ${
+                                className={`flex items-center gap-1.5 hover:underline font-medium ${
                                   rowHighlighted ? 'text-white hover:text-blue-300' : groupHighlighted ? 'text-slate-400' : 'text-slate-800 hover:text-primary-600'
                                 }`}
                               >
+                                <PhotoThumbnail thumbnail={item.family.photoThumbnail} fullPhoto={item.family.photoUrl} />
                                 {familyDisplayNames(item.family.members || [])}
                                 <span className={`text-xs font-normal ml-1 ${rowHighlighted ? 'text-slate-400' : groupHighlighted ? 'text-slate-500' : 'text-gray-400'}`}>
                                   ({item.family.members?.filter((m: any) => m.attending).length || 0}명)
@@ -201,7 +203,8 @@ export default function VolunteerSchedulePage() {
                       return (
                         <tr key={item.sessionId} className="border-b border-orange-100 hover:bg-orange-50/50">
                           <td className="py-2 px-3">
-                            <Link to={`/families/${item.family.id}`} className="text-slate-800 hover:text-primary-600 hover:underline font-medium">
+                            <Link to={`/families/${item.family.id}`} className="flex items-center gap-1.5 text-slate-800 hover:text-primary-600 hover:underline font-medium">
+                              <PhotoThumbnail thumbnail={item.family.photoThumbnail} fullPhoto={item.family.photoUrl} />
                               {familyDisplayNames(item.family.members || [])}
                             </Link>
                           </td>

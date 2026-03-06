@@ -2,22 +2,14 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import sharp from 'sharp';
 import path from 'path';
-import fs from 'fs';
 import { authenticate } from '../middleware/auth';
 
 export const uploadRouter = Router();
 uploadRouter.use(authenticate);
 
-// uploads 디렉토리 생성
-const uploadDir = path.resolve(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// 메모리에 임시 저장 후 sharp로 압축
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 원본 최대 10MB
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const allowed = /\.(jpg|jpeg|png|gif|webp)$/i;
     if (allowed.test(path.extname(file.originalname))) {
@@ -28,12 +20,11 @@ const upload = multer({
   },
 });
 
-const TARGET_SIZE = 100 * 1024; // 100KB
+const FULL_TARGET = 20 * 1024; // 20KB
 
-async function compressToTarget(buffer: Buffer): Promise<Buffer> {
-  // 먼저 리사이즈 (최대 800px) + quality 80으로 시작
+async function compressToTarget(buffer: Buffer, targetSize: number, maxWidth: number): Promise<Buffer> {
   let quality = 80;
-  let width = 800;
+  let width = maxWidth;
 
   let result = await sharp(buffer)
     .rotate()
@@ -41,8 +32,7 @@ async function compressToTarget(buffer: Buffer): Promise<Buffer> {
     .jpeg({ quality })
     .toBuffer();
 
-  // 100KB 이하가 될 때까지 quality를 낮춤
-  while (result.length > TARGET_SIZE && quality > 20) {
+  while (result.length > targetSize && quality > 20) {
     quality -= 10;
     result = await sharp(buffer)
       .rotate()
@@ -51,9 +41,8 @@ async function compressToTarget(buffer: Buffer): Promise<Buffer> {
       .toBuffer();
   }
 
-  // 아직도 크면 해상도도 줄임
-  while (result.length > TARGET_SIZE && width > 200) {
-    width -= 100;
+  while (result.length > targetSize && width > 100) {
+    width -= 50;
     result = await sharp(buffer)
       .rotate()
       .resize(width, width, { fit: 'inside', withoutEnlargement: true })
@@ -64,6 +53,18 @@ async function compressToTarget(buffer: Buffer): Promise<Buffer> {
   return result;
 }
 
+async function createThumbnail(buffer: Buffer): Promise<Buffer> {
+  return sharp(buffer)
+    .rotate()
+    .resize(80, 80, { fit: 'cover' })
+    .jpeg({ quality: 60 })
+    .toBuffer();
+}
+
+function toDataUrl(buf: Buffer): string {
+  return `data:image/jpeg;base64,${buf.toString('base64')}`;
+}
+
 uploadRouter.post('/photo', upload.single('photo'), async (req: Request, res: Response) => {
   if (!req.file) {
     res.status(400).json({ error: '파일이 없습니다' });
@@ -71,14 +72,15 @@ uploadRouter.post('/photo', upload.single('photo'), async (req: Request, res: Re
   }
 
   try {
-    const compressed = await compressToTarget(req.file.buffer);
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
-    const filepath = path.join(uploadDir, filename);
-    fs.writeFileSync(filepath, compressed);
+    const [full, thumb] = await Promise.all([
+      compressToTarget(req.file.buffer, FULL_TARGET, 600),
+      createThumbnail(req.file.buffer),
+    ]);
 
-    const sizeKB = (compressed.length / 1024).toFixed(1);
-    const url = `/uploads/${filename}`;
-    res.json({ url, sizeKB });
+    const url = toDataUrl(full);
+    const thumbnail = toDataUrl(thumb);
+    const sizeKB = (full.length / 1024).toFixed(1);
+    res.json({ url, thumbnail, sizeKB });
   } catch {
     res.status(500).json({ error: '이미지 압축 실패' });
   }

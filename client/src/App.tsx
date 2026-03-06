@@ -23,7 +23,6 @@ import VolunteerSchedulePage from './pages/VolunteerSchedulePage';
 function FirstLoginModal() {
   const { user, setUser } = useAuthStore();
   const [step, setStep] = useState<'ask' | 'name' | 'done'>('ask');
-  const [selectedRole, setSelectedRole] = useState<'VOLUNTEER' | 'ADMIN'>('VOLUNTEER');
   const [realName, setRealName] = useState('');
 
   // admin이거나 이미 바나바 등록된 사용자는 모달 안 띄움
@@ -35,7 +34,7 @@ function FirstLoginModal() {
     const name = realName.trim();
     if (!name) { alert('이름을 입력해주세요'); return; }
     try {
-      const updated = await api.requestVolunteer(name, selectedRole);
+      const updated = await api.requestVolunteer(name, 'VOLUNTEER');
       setUser(updated);
       setStep('done');
     } catch (err) {
@@ -47,7 +46,7 @@ function FirstLoginModal() {
     setUser({ ...user, isFirstLogin: false });
   };
 
-  const roleLabel = selectedRole === 'ADMIN' ? '관리자' : '바나바';
+  const roleLabel = '바나바';
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -99,16 +98,10 @@ function FirstLoginModal() {
             <p className="text-sm text-gray-600 mb-5">어떤 역할로 등록하시겠습니까?</p>
             <div className="space-y-2">
               <button
-                onClick={() => { setSelectedRole('VOLUNTEER'); setStep('name'); }}
+                onClick={() => setStep('name')}
                 className="w-full py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700"
               >
                 바나바로 등록
-              </button>
-              <button
-                onClick={() => { setSelectedRole('ADMIN'); setStep('name'); }}
-                className="w-full py-2.5 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600"
-              >
-                관리자로 등록
               </button>
               <button
                 onClick={handleDismiss}

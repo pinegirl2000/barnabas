@@ -105,7 +105,7 @@ export const api = {
   updatePastor: (id: string, data: any) => request<any>(`/pastors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
   // Upload
-  uploadPhoto: async (file: File): Promise<{ url: string }> => {
+  uploadPhoto: async (file: File): Promise<{ url: string; thumbnail: string }> => {
     const token = localStorage.getItem('token');
     const formData = new FormData();
     formData.append('photo', file);

@@ -282,7 +282,7 @@ familyRouter.post(
   requireRole('ADMIN', 'FAMILY_TEAM', 'VOLUNTEER'),
   async (req: Request, res: Response) => {
     try {
-      const { members, type, serviceTime, districtId, regionId, zoneId, photoUrl, arrivalDate, volunteerId, address } = req.body;
+      const { members, type, serviceTime, districtId, regionId, zoneId, photoUrl, photoThumbnail, arrivalDate, volunteerId, address } = req.body;
 
       // 등록번호 자동 발급
       const registrationNumber = await generateRegistrationNumber();
@@ -296,6 +296,7 @@ familyRouter.post(
           regionId,
           zoneId,
           photoUrl,
+          photoThumbnail,
           arrivalDate: arrivalDate ? new Date(arrivalDate) : null,
           address: address || null,
           members: {

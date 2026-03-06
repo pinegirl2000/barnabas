@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import { getFamilyTypeLabel, getServiceTimeLabel, getStatusColor, getStatusLabel } from '../lib/utils';
 import { volunteerDisplayName } from '../lib/volunteerDisplay';
 import { familyDisplayNames } from '../lib/familyDisplayNames';
+import PhotoThumbnail from '../components/PhotoThumbnail';
 
 function getMonthRange(monthsBack: number) {
   const now = new Date();
@@ -195,7 +196,8 @@ export default function RegistrationHistoryPage() {
                             return (
                               <tr key={f.id} className="border-b border-gray-50 hover:bg-gray-50">
                                 <td className="py-2.5 px-4">
-                                  <Link to={`/families/${f.id}`} className="text-primary-600 hover:underline font-medium">
+                                  <Link to={`/families/${f.id}`} className="flex items-center gap-1.5 text-primary-600 hover:underline font-medium">
+                                    <PhotoThumbnail thumbnail={f.photoThumbnail} fullPhoto={f.photoUrl} />
                                     {familyDisplayNames(f.members || [])}
                                   </Link>
                                 </td>

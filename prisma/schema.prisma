@@ -76,7 +76,8 @@ model Family {
   type               FamilyType
   serviceTime        ServiceTime
   status             FamilyStatus @default(ACTIVE)
-  photoUrl           String?
+  photoUrl           String?   @db.Text
+  photoThumbnail     String?   @db.Text
   districtId         String?
   regionId           String?
   zoneId             String?

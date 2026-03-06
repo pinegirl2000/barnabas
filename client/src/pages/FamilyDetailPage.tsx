@@ -8,6 +8,7 @@ import { volunteerDisplayName } from '../lib/volunteerDisplay';
 import { familyDisplayNames } from '../lib/familyDisplayNames';
 import { useAuth } from '../hooks/useAuth';
 import ConfirmModal from '../components/ConfirmModal';
+import PhotoThumbnail from '../components/PhotoThumbnail';
 
 /** 로컬 날짜를 YYYY-MM-DD 문자열로 변환 (타임존 안전) */
 function toLocaleDateStr(d: Date): string {
@@ -81,7 +82,6 @@ export default function FamilyDetailPage() {
   const [saving, setSaving] = useState(false);
   const [editingDateSession, setEditingDateSession] = useState<string | null>(null);
   const [collapsedSessions, setCollapsedSessions] = useState<Set<string>>(new Set());
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pendingEdits, setPendingEdits] = useState<Record<string, {
     date?: string; volunteerId?: string; needsNewVolunteer?: boolean;
@@ -368,13 +368,8 @@ export default function FamilyDetailPage() {
               <div className="flex gap-4">
                 {/* 왼쪽: 사진 */}
                 <div className="shrink-0">
-                  {family.photoUrl ? (
-                    <img
-                      src={family.photoUrl}
-                      alt="가족사진"
-                      className="w-20 h-20 rounded-lg object-cover border border-gray-200 cursor-pointer"
-                      onClick={() => setLightboxUrl(family.photoUrl)}
-                    />
+                  {family.photoThumbnail ? (
+                    <PhotoThumbnail thumbnail={family.photoThumbnail} fullPhoto={family.photoUrl} size="w-20 h-20 rounded-lg" />
                   ) : (
                     <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 text-xs">사진없음</div>
                   )}
@@ -807,21 +802,6 @@ export default function FamilyDetailPage() {
           </div>
         </div>
       </div>
-
-      {/* 사진 라이트박스 */}
-      {lightboxUrl && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={() => setLightboxUrl(null)}
-        >
-          <img
-            src={lightboxUrl}
-            alt="가족사진"
-            className="max-w-[90vw] max-h-[80vh] rounded-xl shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          />
-        </div>
-      )}
 
       <ConfirmModal
         open={showDeleteConfirm}

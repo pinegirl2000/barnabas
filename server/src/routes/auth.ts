@@ -111,17 +111,16 @@ authRouter.put('/users/:id/role', authenticate, requireRole('ADMIN'), async (req
   }
 });
 
-// 바나바/관리자 등록 (즉시 완료: Volunteer 생성 + User 연결)
+// 바나바 등록 (즉시 완료: Volunteer 생성 + User 연결)
 authRouter.post('/volunteer-request', authenticate, async (req: Request, res: Response) => {
   try {
-    const { name: volunteerName, role: requestedRole } = req.body;
+    const { name: volunteerName } = req.body;
     if (!volunteerName?.trim()) {
       res.status(400).json({ error: '이름을 입력해주세요' });
       return;
     }
 
-    // role은 VOLUNTEER 또는 ADMIN만 허용
-    const assignRole = requestedRole === 'ADMIN' ? 'ADMIN' : 'VOLUNTEER';
+    const assignRole = 'VOLUNTEER';
 
     // Volunteer 레코드 생성 (정식 이름으로)
     const volunteer = await prisma.volunteer.create({
