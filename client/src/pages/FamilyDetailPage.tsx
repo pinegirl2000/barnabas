@@ -365,21 +365,37 @@ export default function FamilyDetailPage() {
 
           {infoTab === 'info' ? (
             <div className="p-4">
-              <div className="flex gap-4">
-                {/* 왼쪽: 사진 */}
-                <div className="shrink-0">
+              {/* 모바일: 세로 배치 / 데스크톱: 가로 배치 */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* 사진 + 등록번호 */}
+                <div className="flex items-center gap-3 sm:block sm:shrink-0">
                   {family.photoThumbnail ? (
                     <PhotoThumbnail thumbnail={family.photoThumbnail} fullPhoto={family.photoUrl} size="w-20 h-20 rounded-lg" />
                   ) : (
-                    <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 text-xs">사진없음</div>
+                    <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 text-xs shrink-0">사진없음</div>
                   )}
-                  {family.registrationNumber && (
-                    <span className="block text-center text-[10px] text-gray-500 bg-gray-100 rounded mt-1 py-0.5">{family.registrationNumber}</span>
-                  )}
+                  <div className="sm:hidden flex flex-wrap items-center gap-2">
+                    {family.registrationNumber && (
+                      <span className="text-[10px] text-gray-500 bg-gray-100 rounded py-0.5 px-1.5">{family.registrationNumber}</span>
+                    )}
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${family.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
+                      {getFamilyTypeLabel(family.type)}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(family.status)}`}>
+                      {getStatusLabel(family.status)}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                      {getServiceTimeLabel(family.serviceTime)}
+                    </span>
+                  </div>
                 </div>
-                {/* 오른쪽: 정보 */}
+                {/* 정보 영역 */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  {/* 데스크톱 태그 행 */}
+                  <div className="hidden sm:flex items-center gap-2 mb-2 flex-wrap">
+                    {family.registrationNumber && (
+                      <span className="text-[10px] text-gray-500 bg-gray-100 rounded py-0.5 px-1.5">{family.registrationNumber}</span>
+                    )}
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${family.type === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
                       {getFamilyTypeLabel(family.type)}
                     </span>
@@ -393,9 +409,10 @@ export default function FamilyDetailPage() {
                       참석인원 {family.members?.filter((m: any) => m.attending).length || 0}명
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-400 min-w-[40px]">바나바</span>
+                  {/* 정보 그리드: 모바일 1열, 데스크톱 2열 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+                    <div className="flex items-center justify-between sm:justify-start gap-2">
+                      <span className="text-gray-400 shrink-0">바나바</span>
                       <span className="font-medium text-pink-600 truncate">
                         {(() => {
                           const v = family.sessions?.find((s: any) => !s.completed && s.volunteerId)?.volunteer;
@@ -403,21 +420,25 @@ export default function FamilyDetailPage() {
                         })()}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-400 min-w-[40px]">교구</span>
+                    <div className="flex items-center justify-between sm:justify-start gap-2">
+                      <span className="text-gray-400 shrink-0">교구</span>
                       <span className="font-medium truncate">
                         {family.district?.name
                           ? `${family.district.name}${family.zone ? `-${family.zone.name}` : ''}`
                           : '미배정'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-400 min-w-[40px]">입국일</span>
+                    <div className="flex items-center justify-between sm:justify-start gap-2">
+                      <span className="text-gray-400 shrink-0">입국일</span>
                       <span className="font-medium">{family.arrivalDate ? formatDate(family.arrivalDate) : '-'}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-400 min-w-[40px]">주소</span>
+                    <div className="flex items-center justify-between sm:justify-start gap-2">
+                      <span className="text-gray-400 shrink-0">주소</span>
                       <span className="font-medium truncate">{family.address || '-'}</span>
+                    </div>
+                    <div className="flex items-center justify-between sm:justify-start gap-2 sm:hidden">
+                      <span className="text-gray-400 shrink-0">참석인원</span>
+                      <span className="font-medium">{family.members?.filter((m: any) => m.attending).length || 0}명</span>
                     </div>
                   </div>
                 </div>

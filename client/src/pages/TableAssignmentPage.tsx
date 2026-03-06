@@ -280,7 +280,9 @@ function DraggableCard({ assignment, inverted }: { assignment: any; inverted?: b
       } bg-white border-gray-200 shadow-sm`}
     >
       <div className="flex items-center justify-center gap-1 flex-wrap">
-        <PhotoThumbnail thumbnail={assignment.family?.photoThumbnail} fullPhoto={assignment.family?.photoUrl} />
+        <span onPointerDown={e => e.stopPropagation()}>
+          <PhotoThumbnail thumbnail={assignment.family?.photoThumbnail} fullPhoto={assignment.family?.photoUrl} />
+        </span>
         <span
           className="text-xs sm:text-sm font-medium text-gray-900 hover:text-primary-600 hover:underline break-all"
           onPointerDown={e => e.stopPropagation()}
